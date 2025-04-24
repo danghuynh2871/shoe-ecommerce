@@ -8,8 +8,13 @@
       <router-view />
     </main>
 
+<<<<<<< HEAD
     <!-- Footer chỉ hiển thị nếu không phải trang admin -->
     <Footer v-if="!isAdminRoute" />
+=======
+    <!-- Footer ở dưới cùng -->
+    <Footer />
+>>>>>>> origin/nhan
   </div>
 </template>
 
@@ -17,8 +22,11 @@
 // Import các thành phần Header và Footer
 import Header from "./components/ComHeader.vue";
 import Footer from "./components/ComFooter.vue";
+<<<<<<< HEAD
 import { computed } from 'vue';
 import { useRoute } from 'vue-router';
+=======
+>>>>>>> origin/nhan
 
 export default {
   name: "App",
@@ -26,11 +34,14 @@ export default {
     Header,
     Footer,
   },
+<<<<<<< HEAD
   setup() {
     const route = useRoute();
     const isAdminRoute = computed(() => route.path.startsWith('/admin'));
     return { isAdminRoute };
   }
+=======
+>>>>>>> origin/nhan
 };
 </script>
 
