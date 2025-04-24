@@ -46,86 +46,199 @@
 
 <script>
 export default {
-    name: 'ComHeader',
+  name: 'ComHeader',
+  data() {
+    return {
+      isUserMenuOpen: false
+    }
+  },
+  methods: {
+    toggleUserMenu() {
+      this.isUserMenuOpen = !this.isUserMenuOpen;
+    }
+  }
 };
 </script>
 
 <style scoped>
-.header {
-    background-color: #ffffff;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 1000;
+.main-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  background-color: #fff;
+  font-family: 'Arial', sans-serif;
 }
 
+/* Top Bar */
+.top-bar {
+  background-color: #f5f5f5;
+  padding: 5px 20px;
+  font-size: 12px;
+  text-align: right;
+}
+
+.top-bar-links a {
+  color: #333;
+  text-decoration: none;
+  margin: 0 8px;
+  transition: color 0.3s ease;
+}
+
+.top-bar-links a:hover {
+  color: #ff6f61;
+}
+
+.top-bar-links span {
+  color: #999;
+}
+
+/* User Section */
+.user-section {
+  display: inline-flex;
+  align-items: center;
+}
+
+.user-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 14px;
+  margin-right: 8px;
+}
+
+.user-icon img {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-section span {
+  margin: 0 8px;
+  color: #333;
+}
+
+.user-section a {
+  color: #333;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.user-section a:hover {
+  color: #ff6f61;
+}
+
+/* Header Container */
 .header-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 15px 20px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  max-width: 1400px;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 20px;
+  margin: 0 auto;
 }
 
+/* Logo */
 .logo img {
-    height: 40px;
-    width: auto;
+  height: 40px;
+  transition: transform 0.3s ease;
+}
+
+.logo img:hover {
+  transform: scale(1.1);
+}
+
+/* Menu */
+nav {
+  flex: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .menu {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: 30px;
+  list-style: none;
+  display: flex;
+  gap: 20px;
+  margin: 0;
+  padding: 0;
 }
 
-.menu-item {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-    font-size: 16px;
-    transition: color 0.3s ease;
+.menu li a {
+  color: #333;
+  font-size: 14px;
+  text-decoration: none;
+  font-weight: 500;
+  text-transform: uppercase;
+  padding: 10px 15px;
+  transition: color 0.3s ease;
 }
 
-.menu-item:hover {
-    color: #ff4d4d;
+.menu li a:hover {
+  color: #ff6f61;
 }
 
-.auth-buttons {
-    display: flex;
+/* Header Actions */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+
+.user-icon,
+.cart-icon {
+  font-size: 20px;
+  color: #333;
+  cursor: pointer;
+  position: relative;
+}
+
+.user-icon {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-radius: 4px;
+  padding: 10px;
+  min-width: 150px;
+  z-index: 1000;
+}
+
+.user-dropdown a {
+  display: block;
+  padding: 8px 15px;
+  color: #333;
+  text-decoration: none;
+  transition: background-color 0.3s;
+}
+
+.user-dropdown a:hover {
+  background-color: #f5f5f5;
+  color: #ff6f61;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .header-actions {
     gap: 15px;
-}
+  }
 
-.auth-btn {
-    padding: 8px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: 500;
-    transition: all 0.3s ease;
-}
-
-.login {
-    color: #ff4d4d;
-    border: 1px solid #ff4d4d;
-}
-
-.login:hover {
-    background-color: #ff4d4d;
-    color: white;
-}
-
-.register {
-    background-color: #ff4d4d;
-    color: white;
-    border: 1px solid #ff4d4d;
-}
-
-.register:hover {
-    background-color: #ff3333;
-    border-color: #ff3333;
+  .user-icon,
+  .cart-icon {
+    font-size: 18px;
+  }
 }
 </style>
