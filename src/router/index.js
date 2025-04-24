@@ -7,6 +7,11 @@ import ListProduct from '@/components/admin/products/ListProduct.vue'; // New co
 import ListCustomer from '@/components/admin/customers/ListCustomer.vue'; // New component
 import InsertProduct from '@/components/admin/products/InsertProduct.vue';
 import CustomerManagement from '@/components/admin/ComCustomerManagement.vue';
+import Home from '@/components/ComHome.vue'
+import Cart from '@/components/ComCart.vue'
+import About from '@/components/ComAboutUs.vue'
+import Contact from '@/components/ComContact.vue'
+import Products from '@/components/ComListProduct.vue'
 
 const routes = [
     {
@@ -15,9 +20,40 @@ const routes = [
         component: Register
     },
     {
-        path: "/login",
-        name: "Login",
-        component: Login
+        path:"/",
+        name:"Home",
+        component:Home
+    },
+
+    // đối tượng trang login
+    {
+        path:"/login",
+        name:"Login",
+        component:Login
+    },
+    // đối tượng trang cart
+    {
+        path:"/cart",
+        name:"Cart",
+        component:Cart
+    },
+    // đối tượng trang about
+    {
+        path:"/about",
+        name:"About",
+        component:About
+    },
+    // đối tượng trang contact
+    {
+        path:"/contact",
+        name:"Contact",
+        component:Contact
+    },
+    // đối tượng trang products
+    {
+        path:"/products",
+        name:"Products",
+        component:Products
     },
     {
         path: "/admin",
@@ -55,9 +91,9 @@ const routes = [
     
 ]
 
-const router = createRouter({
-    history: createWebHistory(),
+// tạo đối tượng router
+const router=createRouter({
+    history:createWebHistory(),
     routes
 })
-
-export default router;
+export default router
