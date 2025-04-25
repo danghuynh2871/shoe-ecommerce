@@ -12,6 +12,7 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     fullname: {
       type: String,
       required: true,
@@ -22,6 +23,7 @@ const adminSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
+
 );
 
 // Mã hóa mật khẩu trước khi lưu
@@ -50,3 +52,4 @@ adminSchema.statics.createDefaultAdmin = async function () {
 
 const Admin = mongoose.model("Admin", adminSchema);
 module.exports = Admin;
+
