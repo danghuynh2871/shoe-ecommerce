@@ -19,6 +19,14 @@ const orderSchema = new mongoose.Schema(
       required: true,
     },
     items: [orderItemSchema],
+    subTotal: {
+      type: Number,
+      required: true,
+    },
+    vat: {
+      type: Number,
+      required: true,
+    },
     totalAmount: {
       type: Number,
       required: true,
@@ -35,8 +43,8 @@ const orderSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["completed", "cancelled"],
-      default: "completed",
+      enum: ["pending", "processing", "shipping", "delivered", "cancelled"],
+      default: "pending",
     },
   },
   {
