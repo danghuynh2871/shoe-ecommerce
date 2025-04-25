@@ -6,14 +6,14 @@ exports.registerUser = asyncHandler(async (req, res) => {
   try {
     const { fullname, email, phone, password } = req.body;
 
-    if (!fullname || !email || !phone || !password) {
+    if (!fullname || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Vui lòng nhập đầy đủ thông tin!",
+        message: "Vui lòng nhập đầy đủ thông tin cần thiết!",
       });
     }
 
-    const emailExists = await User.findOne({ email: email.toLowerCase() });
+    const emailExists = await User.findOne({ email });
     if (emailExists) {
       return res.status(400).json({
         success: false,
@@ -21,12 +21,14 @@ exports.registerUser = asyncHandler(async (req, res) => {
       });
     }
 
-    const phoneExists = await User.findOne({ phone });
-    if (phoneExists) {
-      return res.status(400).json({
-        success: false,
-        message: "Số điện thoại đã được sử dụng!",
-      });
+    if (phone) {
+      const phoneExists = await User.findOne({ phone });
+      if (phoneExists) {
+        return res.status(400).json({
+          success: false,
+          message: "Số điện thoại đã được sử dụng!",
+        });
+      }
     }
 
     const user = await User.create({
@@ -37,9 +39,9 @@ exports.registerUser = asyncHandler(async (req, res) => {
     });
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     res.status(201).json({
@@ -73,7 +75,7 @@ exports.loginUser = asyncHandler(async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email: email.toLowerCase() });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
         success: false,
@@ -90,9 +92,9 @@ exports.loginUser = asyncHandler(async (req, res) => {
     }
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "1d" }
     );
 
     res.status(200).json({

@@ -3,7 +3,7 @@ const bcrypt = require("bcryptjs");
 
 const adminSchema = new mongoose.Schema(
   {
-    username: {
+    email: {
       type: String,
       required: true,
       unique: true,
@@ -12,28 +12,44 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
+    fullname: {
+      type: String,
+      required: true,
+    },
     role: {
       type: String,
       default: "admin",
-    },
+    }
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
+
 );
 
 // Mã hóa mật khẩu trước khi lưu
 adminSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) {
-    next();
-  }
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  if (!this.isModified("password")) return next();
+  this.password = await bcrypt.hash(this.password, 10);
+  next();
 });
 
-// Phương thức kiểm tra mật khẩu
-adminSchema.methods.matchPassword = async function (enteredPassword) {
-  return await bcrypt.compare(enteredPassword, this.password);
+// Tạo tài khoản admin mặc định
+adminSchema.statics.createDefaultAdmin = async function () {
+  try {
+    const adminExists = await this.findOne({ email: "admin@gmail.com" });
+    if (!adminExists) {
+      await this.create({
+        email: "admin@gmail.com",
+        password: "Admin123",
+        fullname: "Quản trị hệ thống",
+      });
+      console.log("Tạo tài khoản admin mặc định thành công!");
+    }
+  } catch (error) {
+    console.error("Lỗi khi tạo admin:", error);
+  }
 };
 
-module.exports = mongoose.model("Admin", adminSchema);
+const Admin = mongoose.model("Admin", adminSchema);
+module.exports = Admin;
+
