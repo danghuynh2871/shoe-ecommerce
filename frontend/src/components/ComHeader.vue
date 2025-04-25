@@ -241,4 +241,40 @@ nav {
     font-size: 18px;
   }
 }
+
+@media (max-width: 992px) {
+  .menu {
+    display: none;
+    position: fixed;
+    top: 60px;
+    left: 0;
+    width: 100%;
+    background: white;
+    padding: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  }
+
+  .menu.active {
+    display: block;
+  }
+
+  .menu li {
+    display: block;
+    margin: 15px 0;
+  }
+}
+
+@media (max-width: 576px) {
+  .header-container {
+    padding: 10px;
+  }
+
+  .logo img {
+    height: 30px;
+  }
+
+  .header-actions {
+    gap: 15px;
+  }
+}
 </style>

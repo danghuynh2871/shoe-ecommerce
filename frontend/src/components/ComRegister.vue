@@ -23,7 +23,7 @@
         </div>
         <div class="form-group">
           <label for="phoneNumber">Số Điện Thoại</label>
-          <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="0123456789" required>
+          <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="VD: 0123456789" required>
         </div>
         <button type="submit" class="register-btn">Đăng Kí</button>
       </form>

@@ -11,9 +11,9 @@
           <div class="sub-menu" v-if="showProductSubMenu">
             <router-link to="/admin/products/list" class="nav-item sub-item">Danh sách sản phẩm</router-link>
             <router-link to="/admin/products/insert" class="nav-item sub-item">Thêm sản phẩm</router-link>
-            <!-- Add more product-related links here -->
           </div>
         </div>
+
         <div class="menu-item">
           <router-link to="/admin/customers" class="nav-item" @click="toggleCustomerSubMenu">
             Quản lý người dùng
@@ -21,9 +21,19 @@
           </router-link>
           <div class="sub-menu" v-if="showCustomerSubMenu">
             <router-link to="/admin/customers/list" class="nav-item sub-item">Danh sách người dùng</router-link>
-            <!-- Add more customer-related links here -->
           </div>
         </div>
+
+        <div class="menu-item">
+          <router-link to="/admin/orders" class="nav-item" @click="toggleOrderSubMenu">
+            Quản lý đơn hàng
+            <span class="arrow-icon">{{ showOrderSubMenu ? '▲' : '▼' }}</span>
+          </router-link>
+          <div class="sub-menu" v-if="showOrderSubMenu">
+            <router-link to="/admin/orders/list" class="nav-item sub-item">Lịch sử đơn hàng</router-link>
+          </div>
+        </div>
+
       </nav>
     </div>
     <div class="admin-content">
@@ -38,7 +48,8 @@ export default {
   data() {
     return {
       showProductSubMenu: false,
-      showCustomerSubMenu: false
+      showCustomerSubMenu: false,
+      showOrderSubMenu: false
     }
   },
   methods: {
@@ -47,6 +58,9 @@ export default {
     },
     toggleCustomerSubMenu() {
       this.showCustomerSubMenu = !this.showCustomerSubMenu;
+    },
+    toggleOrderSubMenu() {
+      this.showOrderSubMenu = !this.showOrderSubMenu;
     }
   }
 }

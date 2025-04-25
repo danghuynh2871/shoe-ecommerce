@@ -67,10 +67,11 @@ export default {
           id: 1,
           name: 'Nike Air Max 270',
           price: 2990000,
-          size: '42',
+          size: '42',   
           quantity: 1,
           image: 'https://static.nike.com/a/images/t_PDP_1280_v1/f_auto,q_auto:eco/7c2fff38-9f89-4e43-a845-f3bace545726/air-max-90-shoes-kRsBnD.png'
         },
+        
         // Thêm các sản phẩm mẫu khác nếu cần
       ],
       shippingFee: 30000
@@ -280,28 +281,35 @@ export default {
   color: #ff6f61;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 992px) {
   .cart-content {
     grid-template-columns: 1fr;
   }
+}
 
+@media (max-width: 768px) {
   .cart-item {
     grid-template-columns: 1fr;
     text-align: center;
-  }
-
-  .item-image img {
-    width: 150px;
-    height: 150px;
+    gap: 15px;
   }
 
   .item-quantity {
     justify-content: center;
-    margin: 10px 0;
   }
 
   .remove-item {
     margin: 10px auto;
+  }
+}
+
+@media (max-width: 576px) {
+  .cart-container {
+    padding: 0 10px;
+  }
+  
+  .cart-header h1 {
+    font-size: 2em;
   }
 }
 </style>

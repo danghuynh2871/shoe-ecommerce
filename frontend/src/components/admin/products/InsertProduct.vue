@@ -1,6 +1,6 @@
 <template>
   <div class="insert-product-container">
-    <h2>Thêm sản phẩm mới</h2>
+    <h2>{{ isEditMode ? 'Sửa sản phẩm' : 'Thêm sản phẩm mới' }}</h2>
     <form @submit.prevent="submitProduct">
       <div class="form-group">
         <input type="text" id="productId" v-model="productId" placeholder="Mã sản phẩm" :readonly="isEditMode" required>
@@ -24,7 +24,7 @@
       <div class="form-group">
         <textarea id="productInfo" v-model="productInfo" placeholder="Mô tả" required></textarea>
       </div>
-      <button type="submit">Thêm sản phẩm</button>
+      <button type="submit">{{ isEditMode ? 'Cập nhật' : 'Thêm sản phẩm' }}</button>
     </form>
   </div>
 </template>
@@ -42,7 +42,7 @@ export default {
       productStock: '',
       productSize: '',
       productInfo: '',
-      isEditMode: false // New data property to track edit mode
+      isEditMode: false
     }
   },
   created() {
@@ -50,12 +50,12 @@ export default {
     if (query.id) {
       this.productId = query.id;
       this.productName = query.name;
-      this.productPrice = query.price;
+      this.productPrice = query.price.replace(/[^\d]/g, ''); // Remove non-numeric characters
       this.productImagePreview = query.image;
       this.productStock = query.stock;
       this.productSize = query.size;
       this.productInfo = query.info;
-      this.isEditMode = true; // Set edit mode to true if editing
+      this.isEditMode = true;
     }
   },
   methods: {
@@ -63,19 +63,33 @@ export default {
       const file = event.target.files[0];
       this.productImage = file;
       this.productImagePreview = URL.createObjectURL(file);
-      console.log('Selected image:', file);
     },
     submitProduct() {
-      console.log('Product submitted:', {
+      // Format price with thousands separator and currency symbol
+      const formattedPrice = this.productPrice.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') + 'đ';
+      
+      const newProduct = {
         id: this.productId,
         name: this.productName,
-        price: this.productPrice,
-        image: this.productImage,
-        stock: this.productStock,
+        price: formattedPrice,
+        image: this.productImagePreview || require('@/assets/backgroundLogin.jpg'),
+        stock: parseInt(this.productStock),
         size: this.productSize,
         info: this.productInfo
-      });
+      };
 
+      const existingProducts = JSON.parse(localStorage.getItem('products')) || [];
+      
+      if (this.isEditMode) {
+        const index = existingProducts.findIndex(p => p.id === this.productId);
+        if (index !== -1) {
+          existingProducts[index] = newProduct;
+        }
+      } else {
+        existingProducts.push(newProduct);
+      }
+
+      localStorage.setItem('products', JSON.stringify(existingProducts));
       this.$router.push('/admin/products/list');
     }
   }

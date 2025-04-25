@@ -6,7 +6,10 @@ import ComProductManagement from '@/components/admin/ComProductManagement.vue'; 
 import ListProduct from '@/components/admin/products/ListProduct.vue'; // New component
 import ListCustomer from '@/components/admin/customers/ListCustomer.vue'; // New component
 import InsertProduct from '@/components/admin/products/InsertProduct.vue';
+import EditProduct from "@/components/admin/products/EditProduct.vue";
+import ListOrder from "@/components/admin/orders/ListOrder.vue";
 import CustomerManagement from '@/components/admin/ComCustomerManagement.vue';
+import ComOrderManagement from '@/components/admin/ComOrderManagement.vue';
 import Home from '@/components/ComHome.vue'
 import Cart from '@/components/ComCart.vue'
 import About from '@/components/ComAboutUs.vue'
@@ -76,6 +79,11 @@ const routes = [
                 component: InsertProduct
             },
             {
+                path: 'products/edit',
+                name: 'EditProduct',
+                component: EditProduct
+            },
+            {
                 path: "customers",
                 name: "CustomerManagement",
                 component: CustomerManagement
@@ -85,7 +93,21 @@ const routes = [
                 name: "ListCustomer",
                 component: ListCustomer
             },
-            
+            {
+                path: "orders",
+                name: "OrderManagement",
+                component: ComOrderManagement
+            },
+            {
+                path: "orders/list",
+                name: "ListOrder",
+                component: ListOrder
+            },
+            {
+                path: "orders/list",
+                name: "ListOrder",
+                component: ListOrder
+            },
         ]
     },
     
@@ -96,4 +118,4 @@ const router=createRouter({
     history:createWebHistory(),
     routes
 })
-export default router
+export default router;

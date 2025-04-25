@@ -3,8 +3,8 @@
     <!-- Hero Section -->
     <section class="hero-section">
       <div class="hero-content">
-        <h1>Chào mừng đến với SeaDragon Shoes</h1>
-        <p>Nơi mang đến những sản phẩm giày chất lượng hàng đầu</p>
+        <h1>Chào mừng đến với DragonSneaker</h1>
+        <p>Nơi mang đến những sản phẩm chất lượng hàng đầu</p>
       </div>
     </section>
 
@@ -14,11 +14,11 @@
         <h2>Câu chuyện của chúng tôi</h2>
         <div class="story-grid">
           <div class="story-text">
-            <p>SeaDragon Shoes được thành lập với sứ mệnh mang đến những đôi giày chất lượng cao cấp đến với khách hàng. Chúng tôi không chỉ đơn thuần là một cửa hàng giày, mà còn là nơi kết nối đam mê và phong cách.</p>
+            <p>DragonSneaker được thành lập với sứ mệnh mang đến những đôi giày chất lượng cao cấp đến với khách hàng. Chúng tôi không chỉ đơn thuần là một cửa hàng giày, mà còn là nơi kết nối đam mê và phong cách.</p>
             <p>Với hơn 5 năm kinh nghiệm trong ngành, chúng tôi tự hào là đối tác tin cậy của các thương hiệu giày hàng đầu thế giới.</p>
           </div>
           <div class="story-image">
-            <img src="@/assets/view1.jpg" alt="Our Store">
+            <img src="@/assets/view4.jpg" alt="Our Store">
           </div>
         </div>
       </div>
@@ -79,17 +79,32 @@
         <div class="team-grid">
           <div class="team-member">
             <img src="@/assets/b1.jpg" alt="Team Member">
-            <h3>Nguyễn Văn A</h3>
+            <h3>Nguyễn Hữu Lê Tuấn</h3>
             <p>Giám đốc điều hành</p>
           </div>
           <div class="team-member">
             <img src="@/assets/b2.jpg" alt="Team Member">
-            <h3>Trần Thị B</h3>
+            <h3>Nguyễn Hoài Gia Bảo</h3>
             <p>Quản lý cửa hàng</p>
           </div>
           <div class="team-member">
             <img src="@/assets/b3.jpg" alt="Team Member">
-            <h3>Lê Văn C</h3>
+            <h3>Nguyễn Phan Đăng Huỳnh</h3>
+            <p>Chuyên viên tư vấn</p>
+          </div>
+          <div class="team-member">
+            <img src="@/assets/b3.jpg" alt="Team Member">
+            <h3>Vũ Phan Hoài Nam</h3>
+            <p>Chuyên viên tư vấn</p>
+          </div>
+          <div class="team-member">
+            <img src="@/assets/b3.jpg" alt="Team Member">
+            <h3>Hồ Tấn Sanh</h3>
+            <p>Chuyên viên tư vấn</p>
+          </div>
+          <div class="team-member">
+            <img src="@/assets/b3.jpg" alt="Team Member">
+            <h3>Cao Văn Nhân</h3>
             <p>Chuyên viên tư vấn</p>
           </div>
         </div>
@@ -106,13 +121,13 @@ export default {
 
 <style scoped>
 .about-container {
-  max-width: 100%;
+  width: 100%;
   overflow: hidden;
 }
 
 .hero-section {
-  height: 600px;
-  background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)), url('@/assets/b1.jpg');
+  height: 800px;
+  background-image: url('@/assets/view3.jpg');
   background-size: cover;
   background-position: center;
   display: flex;

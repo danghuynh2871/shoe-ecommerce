@@ -1,5 +1,6 @@
 <template>
   <div class="products-container">
+
     <!-- Filter Sidebar -->
     <div class="filters-sidebar">
       <h3>Bộ lọc sản phẩm</h3>
@@ -57,24 +58,6 @@
         </div>
       </div>
 
-      <!-- Lọc theo số lượng -->
-      <div class="filter-section">
-        <h4>Số lượng có sẵn</h4>
-        <div class="quantity-filter">
-          <input 
-            type="number" 
-            v-model="minQuantity" 
-            placeholder="Tối thiểu"
-          >
-          <span>-</span>
-          <input 
-            type="number" 
-            v-model="maxQuantity" 
-            placeholder="Tối đa"
-          >
-        </div>
-      </div>
-
       <button class="clear-filters" @click="clearFilters">
         Xóa bộ lọc
       </button>
@@ -114,19 +97,81 @@ export default {
       selectedSizes: [],
       minQuantity: '',
       maxQuantity: '',
-      brands: ['Nike', 'Adidas', 'Puma', 'New Balance', 'Converse'],
+      brands: ['Nike', 'Adidas', 'Puma', 'New Balance', 'Converse', 'Balenciaga'],
       sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44],
       products: [
         {
           id: 1,
-          name: 'Nike Air Max',
+          name: 'Nike Air 1',
           brand: 'Nike',
-          price: 2500000,
+          price: 1500000,
           quantity: 10,
           sizes: [38, 39, 40, 41],
-          image: 'https://example.com/nike-air-max.jpg'
+          image: 'https://i.pinimg.com/736x/97/5c/46/975c469a00a0b5e85f13deac80e218a2.jpg'
         },
-        // Thêm các sản phẩm khác vào đây
+        {
+          id: 2,
+          name: 'Nike Air 2',
+          brand: 'Nike',
+          price: 4500000,
+          quantity: 10,
+          sizes: [38, 39, 40, 41],
+          image: 'https://i.pinimg.com/736x/fd/cb/90/fdcb90ab98c4061af87686cb111567bb.jpg'
+        },
+        {
+          id: 3,
+          name: 'Adidas Boots 3',
+          brand: 'Adidas',
+          price: 3500000,
+          quantity: 10,
+          sizes: [38, 39, 40, 41],
+          image: 'https://i.pinimg.com/736x/86/0a/4e/860a4e37495bc42c76fefddbb6381945.jpg'
+        },
+        {
+          id: 4,
+          name: 'Converse Omakase',
+          brand: 'Converse',
+          price: 2100000,
+          quantity: 10,
+          sizes: [36, 37, 38, 39, 40, 41],
+          image: 'https://i.pinimg.com/736x/e4/c8/76/e4c8767b7cf63ebf4eed537e20c44700.jpg'
+        },
+        {
+          id: 5,
+          name: 'PUMA RS-X Heritage',
+          brand: 'Puma',
+          price: 2300000,
+          quantity: 10,
+          sizes: [36,37, 38, 39, 40, 41, 42, 43, 44],
+          image: 'https://i.pinimg.com/736x/18/39/52/183952111105c064cff2cea94f924779.jpg'
+        },
+        {
+          id: 6,
+          name: 'New Balance Mens FuelCell',
+          brand: 'New Balance',
+          price: 5000000,
+          quantity: 10,
+          sizes: [36, 38, 40, 42, 44],
+          image: 'https://i.pinimg.com/736x/a2/c2/48/a2c24843c7b7258acd15c0a91fd30d16.jpg'
+        },
+        {
+          id: 7,
+          name: 'BALENCIAGA Speed 2.0',
+          brand: 'Balenciaga',
+          price: 7800000,
+          quantity: 10,
+          sizes: [37, 38, 39, 40, 41, 43, 44],
+          image: 'https://i.pinimg.com/736x/b9/3e/11/b93e11df101f49734a59b0f890921555.jpg'
+        },
+        {
+          id: 8,
+          name: 'BALENCIAGA Runner',
+          brand: 'Balenciaga',
+          price: 4100000,
+          quantity: 10,
+          sizes: [38, 39, 40, 41, 44],
+          image: 'https://i.pinimg.com/736x/3b/de/55/3bde55d1734394bb88e56aa6c1cd98d5.jpg'
+        },
       ]
     }
   },
@@ -152,18 +197,6 @@ export default {
       if (this.selectedSizes.length) {
         result = result.filter(product => 
           product.sizes.some(size => this.selectedSizes.includes(size))
-        )
-      }
-
-      // Lọc theo số lượng
-      if (this.minQuantity) {
-        result = result.filter(product => 
-          product.quantity >= Number(this.minQuantity)
-        )
-      }
-      if (this.maxQuantity) {
-        result = result.filter(product => 
-          product.quantity <= Number(this.maxQuantity)
         )
       }
 
@@ -211,19 +244,33 @@ export default {
 <style scoped>
 .products-container {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 30px;
-  padding: 20px;
-  max-width: 1400px;
-  margin: 0 auto;
+  grid-template-columns: 250px 1fr; /* Giảm width của sidebar xuống, chia ra 2 cột, côt sidebar 250px, cột còn lại là 1 frem */
+  gap: 20px; /* Giảm khoảng cách giữa sidebar và products */
+  padding-top: 30px;
+  width: 100%; /* Để container full width */
+  margin-bottom: 40px; 
 }
 
 .filters-sidebar {
   background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  height: fit-content;
+  padding: 15px;
+  border-radius: 0; /* Bỏ border radius */
+  box-shadow: none; /* Bỏ shadow */
+  height: 100%; /* Để sidebar full height */
+  border-right: 1px solid #eee; /* Thêm đường kẻ phân cách */
+}
+
+.products-grid {
+  background: white;
+  padding: 20px 30px; /* Tăng padding bên phải */
+  border-radius: 0; /* Bỏ border radius */
+  box-shadow: none; /* Bỏ shadow */
+}
+
+.products-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Điều chỉnh kích thước card */
+  gap: 25px; /* Tăng khoảng cách giữa các card */
 }
 
 .filter-section {
@@ -402,12 +449,28 @@ select {
 }
 
 @media (max-width: 768px) {
-  .products-container {
+  .main-container {
     grid-template-columns: 1fr;
   }
 
-  .size-filters {
-    grid-template-columns: repeat(4, 1fr);
+  .filters-sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 80%;
+    height: 100vh;
+    z-index: 1000;
+    transition: 0.3s;
+  }
+
+  .products-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
+  .products-list {
+    grid-template-columns: 1fr;
   }
 }
 </style>

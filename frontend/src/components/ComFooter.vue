@@ -1,7 +1,7 @@
 <template>
   <footer class="footer">
     <div class="subscribe-section">
-      <h2 class="title">Đăng ký nhận tin từ ShoeStore</h2>
+      <h2 class="title">Đăng ký nhận tin từ DragonSneaker</h2>
       <p class="subtitle">Hãy là người đầu tiên biết về các sản phẩm mới, tour trải nghiệm,<br>các sự kiện và nhiều thông tin hấp dẫn khác!</p>
       
       <div class="subscribe-form">
@@ -18,12 +18,12 @@
 
     <div class="footer-bottom">
       <div class="copyright">
-        <p>&copy; ShoeStore / 2024</p>
-        <p>Thiết kế bởi ShoeStore Team</p>
+        <p>&copy; DragonSneaker / 2024</p>
+        <p>Thiết kế bởi InternGDU Team</p>
       </div>
       
       <div class="social-links">
-        <a href="#" class="social-link">Theo dõi ShoeStore</a>
+        <a href="#" class="social-link">Theo dõi DragonSneaker</a>
       </div>
     </div>
   </footer>
@@ -42,6 +42,9 @@ export default {
   padding: 60px 20px;
   position: relative;
   overflow: hidden;
+  width: 100%;
+  margin: 0;
+  box-sizing: border-box;
 }
 
 .subscribe-section {

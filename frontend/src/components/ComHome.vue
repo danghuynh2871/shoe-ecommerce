@@ -53,37 +53,27 @@
       </div>
     </section>
 
-    <!-- Special Offers -->
-    <!-- <section class="special-offers">
-      <h2 class="section-title">Ưu đãi đặc biệt</h2>
-      <div class="offer-banner">
-        <h3>Giảm giá đến 50%</h3>
-        <p>Cho tất cả các sản phẩm giày thể thao</p>
-        <button class="view-offer-btn">Xem ngay</button>
-      </div>
-    </section> -->
     <!-- Membership Benefits -->
     <section class="membership-section">
-      <h2 class="section-title">ĐƯỢC NHIỀU HƠN KHI<br>LÀ HỘI VIÊN ADICLUB</h2>
+      <h2 class="section-title">ĐƯỢC NHIỀU HƠN KHI<br>LÀ HỘI VIÊN DRAGONSNEAKER</h2>
       <p class="membership-desc">
-        Trải nghiệm sân nhà Arsenal, chuyến du lịch hè tới những vùng đất và 
-        trải nghiệm mới, hay cơ hội thiết kế đôi sneaker độc nhất? Những tuần lễ 
-        adiClub Days các mùa trước đã mang đến hàng loạt phần quà cực chất, 
-        trải nghiệm độc quyền và khoảnh khắc khó quên cho thành viên trên toàn 
-        thế giới. Mùa này hứa hẹn còn những điều hấp dẫn như thế, hãy chờ đón!
+        Trở thành hội viên DragonSneaker để nhận ngay những ưu đãi độc quyền: giảm giá cực sốc trên các mẫu sneaker hot nhất, 
+        tham gia sự kiện săn giày limited, hay cơ hội sở hữu những đôi giày phiên bản giới hạn không đâu có! Các chương trình 
+        trước đây đã mang đến hàng loạt trải nghiệm đỉnh cao và phần quà hấp dẫn cho thành viên. Mùa này, DragonSneaker sẽ còn 
+        bùng nổ hơn nữa với những bất ngờ đang chờ bạn khám phá!
       </p>
       <div class="member-gallery">
         <div class="gallery-item">
-          <img src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/viVN/Images/football-ss24-arsenal-home-launch-plp-tcc-d_tcm337-1046033.jpg" alt="Member 1">
+          <img src="https://i.pinimg.com/736x/3c/0a/ae/3c0aaee5c88ca1ed64e50258e40342f7.jpg" alt="Member 1">
         </div>
         <div class="gallery-item">
-          <img src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/viVN/Images/originals-fw23-spezial-drop2-glp-m-tcc_tcm337-1043481.jpg" alt="Member 2">
+          <img src="https://i.pinimg.com/736x/54/93/19/549319421c6576b5f25c39e20e9b7486.jpg" alt="Member 2">
         </div>
         <div class="gallery-item">
-          <img src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/viVN/Images/running-ss24-ultraboost-light-3-running-global-launch-plp-tcc-d_tcm337-1047481.jpg" alt="Member 3">
+          <img src="https://i.pinimg.com/736x/97/dd/92/97dd92a6b61c477f04bf1b6c0047966c.jpg" alt="Member 3">
         </div>
         <div class="gallery-item">
-          <img src="https://brand.assets.adidas.com/image/upload/f_auto,q_auto,fl_lossy/viVN/Images/football-ss24-x-crazyfast-launch-plp-tcc-d_tcm337-1047897.jpg" alt="Member 4">
+          <img src="https://i.pinimg.com/736x/bf/8c/f1/bf8cf120923c2c87ac5e9cb78631400b.jpg" alt="Member 4">
         </div>
       </div>
     </section>
@@ -150,6 +140,7 @@ export default {
   color: white;
   text-align: center;
   margin-bottom: 40px;
+  width: 100%;  
 }
 
 .banner-content h1 {
@@ -158,7 +149,8 @@ export default {
   margin-bottom: 20px;
 }
 .banner-content p { 
-    margin-left: 200px
+    margin-left: 200px;
+    margin-bottom: 20px;
 }
 
 .section-title {
@@ -171,8 +163,10 @@ export default {
 .category-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
+  gap: 30px;
   margin-bottom: 40px;
+  margin-left: 15px;
+  margin-right: 15px;
 }
 
 .category-card {
@@ -215,7 +209,7 @@ export default {
   margin: 10px 0;
 }
 
-.add-to-cart-btn, .shop-now-btn, .view-offer-btn {
+.add-to-cart-btn, .shop-now-btn {
   background-color: #e44d26;
   color: white;
   border: none;
@@ -228,19 +222,8 @@ export default {
   margin-left: 200px;
 }
 
-.add-to-cart-btn:hover, .shop-now-btn:hover, .view-offer-btn:hover {
+.add-to-cart-btn:hover, .shop-now-btn:hover {
   background-color: #c73e1d;
-}
-
-.special-offers {
-  margin-bottom: 40px;
-}
-
-.offer-banner {
-  background-color: #f8f8f8;
-  padding: 40px;
-  text-align: center;
-  border-radius: 10px;
 }
 .membership-section {
   max-width: 1200px;

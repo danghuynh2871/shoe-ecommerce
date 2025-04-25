@@ -285,14 +285,21 @@ export default {
 @media (max-width: 768px) {
   .contact-content {
     grid-template-columns: 1fr;
+    gap: 30px;
   }
 
+  .contact-info {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 576px) {
   .contact-info {
     grid-template-columns: 1fr;
   }
 
   .contact-form-container {
-    padding: 20px;
+    padding: 15px;
   }
 }
 </style>

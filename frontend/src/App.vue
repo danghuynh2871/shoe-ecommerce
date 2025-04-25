@@ -35,6 +35,19 @@ export default {
 </script>
 
 <style>
+
+/* Common breakpoints */
+@media (max-width: 1200px) { /* Large devices */ }
+@media (max-width: 992px) { /* Medium devices */ }
+@media (max-width: 768px) { /* Small devices */ }
+@media (max-width: 576px) { /* Extra small devices */ }
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Avenir, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
