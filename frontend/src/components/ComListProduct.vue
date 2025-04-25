@@ -1,19 +1,18 @@
 <template>
   <div class="products-container">
-
     <!-- Filter Sidebar -->
     <div class="filters-sidebar">
       <h3>Bộ lọc sản phẩm</h3>
-      
+
       <!-- Tìm kiếm theo tên -->
       <div class="filter-section">
         <h4>Tìm kiếm</h4>
         <div class="search-box">
-          <input 
-            type="text" 
-            v-model="searchQuery" 
+          <input
+            type="text"
+            v-model="searchQuery"
             placeholder="Tên sản phẩm..."
-          >
+          />
           <i class="fas fa-search"></i>
         </div>
       </div>
@@ -33,11 +32,7 @@
         <h4>Thương hiệu</h4>
         <div class="brand-filters">
           <label v-for="brand in brands" :key="brand">
-            <input 
-              type="checkbox" 
-              v-model="selectedBrands" 
-              :value="brand"
-            >
+            <input type="checkbox" v-model="selectedBrands" :value="brand" />
             {{ brand }}
           </label>
         </div>
@@ -47,8 +42,8 @@
       <div class="filter-section">
         <h4>Kích cỡ</h4>
         <div class="size-filters">
-          <button 
-            v-for="size in sizes" 
+          <button
+            v-for="size in sizes"
             :key="size"
             :class="{ active: selectedSizes.includes(size) }"
             @click="toggleSize(size)"
@@ -58,9 +53,7 @@
         </div>
       </div>
 
-      <button class="clear-filters" @click="clearFilters">
-        Xóa bộ lọc
-      </button>
+      <button class="clear-filters" @click="clearFilters">Xóa bộ lọc</button>
     </div>
 
     <!-- Products Grid -->
@@ -70,207 +63,224 @@
         <p>Hiển thị {{ filteredProducts.length }} sản phẩm</p>
       </div>
 
-      <div class="products-list">
-        <div v-for="product in filteredProducts" :key="product.id" class="product-card">
-          <img :src="product.image" :alt="product.name">
+      <div v-if="loading" class="loading">Đang tải dữ liệu sản phẩm...</div>
+      <div v-else-if="error" class="error">
+        {{ error }}
+      </div>
+      <div v-else class="products-list">
+        <router-link 
+          v-for="product in filteredProducts"
+          :key="product._id"
+          :to="`/products/${product._id}`"
+          class="product-card"
+        >
+          <img :src="product.image" :alt="product.name" class="product-image" />
           <div class="product-info">
             <h3>{{ product.name }}</h3>
-            <p class="brand">{{ product.brand }}</p>
+            <p class="brand" v-if="product.brand">{{ product.brand }}</p>
             <p class="price">{{ formatPrice(product.price) }}</p>
-            <p class="stock">Còn {{ product.quantity }} sản phẩm</p>
-            <button class="add-to-cart">Thêm vào giỏ</button>
+            <p class="stock" v-if="product.stock > 0">Còn {{ product.stock }} sản phẩm</p>
+            <p class="stock out-of-stock" v-else>Hết hàng</p>
+            <button class="view-details-btn">Xem chi tiết</button>
           </div>
-        </div>
+        </router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import productService from "../services/productService";
+import cartService from "../services/cartService";
+
 export default {
-  name: 'ComListProduct',
+  name: "ComListProduct",
   data() {
     return {
-      searchQuery: '',
-      priceSort: '',
+      searchQuery: "",
+      priceSort: "",
       selectedBrands: [],
       selectedSizes: [],
-      minQuantity: '',
-      maxQuantity: '',
-      brands: ['Nike', 'Adidas', 'Puma', 'New Balance', 'Converse', 'Balenciaga'],
-      sizes: [36, 37, 38, 39, 40, 41, 42, 43, 44],
-      products: [
-        {
-          id: 1,
-          name: 'Nike Air 1',
-          brand: 'Nike',
-          price: 1500000,
-          quantity: 10,
-          sizes: [38, 39, 40, 41],
-          image: 'https://i.pinimg.com/736x/97/5c/46/975c469a00a0b5e85f13deac80e218a2.jpg'
-        },
-        {
-          id: 2,
-          name: 'Nike Air 2',
-          brand: 'Nike',
-          price: 4500000,
-          quantity: 10,
-          sizes: [38, 39, 40, 41],
-          image: 'https://i.pinimg.com/736x/fd/cb/90/fdcb90ab98c4061af87686cb111567bb.jpg'
-        },
-        {
-          id: 3,
-          name: 'Adidas Boots 3',
-          brand: 'Adidas',
-          price: 3500000,
-          quantity: 10,
-          sizes: [38, 39, 40, 41],
-          image: 'https://i.pinimg.com/736x/86/0a/4e/860a4e37495bc42c76fefddbb6381945.jpg'
-        },
-        {
-          id: 4,
-          name: 'Converse Omakase',
-          brand: 'Converse',
-          price: 2100000,
-          quantity: 10,
-          sizes: [36, 37, 38, 39, 40, 41],
-          image: 'https://i.pinimg.com/736x/e4/c8/76/e4c8767b7cf63ebf4eed537e20c44700.jpg'
-        },
-        {
-          id: 5,
-          name: 'PUMA RS-X Heritage',
-          brand: 'Puma',
-          price: 2300000,
-          quantity: 10,
-          sizes: [36,37, 38, 39, 40, 41, 42, 43, 44],
-          image: 'https://i.pinimg.com/736x/18/39/52/183952111105c064cff2cea94f924779.jpg'
-        },
-        {
-          id: 6,
-          name: 'New Balance Mens FuelCell',
-          brand: 'New Balance',
-          price: 5000000,
-          quantity: 10,
-          sizes: [36, 38, 40, 42, 44],
-          image: 'https://i.pinimg.com/736x/a2/c2/48/a2c24843c7b7258acd15c0a91fd30d16.jpg'
-        },
-        {
-          id: 7,
-          name: 'BALENCIAGA Speed 2.0',
-          brand: 'Balenciaga',
-          price: 7800000,
-          quantity: 10,
-          sizes: [37, 38, 39, 40, 41, 43, 44],
-          image: 'https://i.pinimg.com/736x/b9/3e/11/b93e11df101f49734a59b0f890921555.jpg'
-        },
-        {
-          id: 8,
-          name: 'BALENCIAGA Runner',
-          brand: 'Balenciaga',
-          price: 4100000,
-          quantity: 10,
-          sizes: [38, 39, 40, 41, 44],
-          image: 'https://i.pinimg.com/736x/3b/de/55/3bde55d1734394bb88e56aa6c1cd98d5.jpg'
-        },
-      ]
-    }
+      selectedProductSizes: {}, // Lưu kích cỡ được chọn cho từng sản phẩm
+      brands: [],
+      sizes: [],
+      products: [],
+      loading: true,
+      error: null,
+    };
   },
   computed: {
     filteredProducts() {
-      let result = [...this.products]
+      if (this.products.length === 0) {
+        return [];
+      }
+
+      let result = [...this.products];
 
       // Lọc theo tên
       if (this.searchQuery) {
-        result = result.filter(product => 
+        result = result.filter((product) =>
           product.name.toLowerCase().includes(this.searchQuery.toLowerCase())
-        )
+        );
       }
 
       // Lọc theo thương hiệu
       if (this.selectedBrands.length) {
-        result = result.filter(product => 
+        result = result.filter((product) =>
           this.selectedBrands.includes(product.brand)
-        )
+        );
       }
 
       // Lọc theo kích cỡ
       if (this.selectedSizes.length) {
-        result = result.filter(product => 
-          product.sizes.some(size => this.selectedSizes.includes(size))
-        )
+        result = result.filter((product) =>
+          product.sizes.some((size) => this.selectedSizes.includes(size))
+        );
       }
 
       // Sắp xếp theo giá
       if (this.priceSort) {
         result.sort((a, b) => {
-          if (this.priceSort === 'asc') {
-            return a.price - b.price
+          if (this.priceSort === "asc") {
+            return a.price - b.price;
           } else {
-            return b.price - a.price
+            return b.price - a.price;
           }
-        })
+        });
       }
 
-      return result
-    }
+      return result;
+    },
+  },
+  created() {
+    this.fetchProducts();
   },
   methods: {
-    formatPrice(price) {
-      return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-      }).format(price)
-    },
-    toggleSize(size) {
-      const index = this.selectedSizes.indexOf(size)
-      if (index === -1) {
-        this.selectedSizes.push(size)
-      } else {
-        this.selectedSizes.splice(index, 1)
+    async fetchProducts() {
+      this.loading = true;
+      try {
+        const response = await productService.getAllProducts();
+        this.products = response.data.products;
+
+        // Trích xuất danh sách thương hiệu và kích cỡ duy nhất từ dữ liệu
+        this.extractBrandsAndSizes();
+
+        this.loading = false;
+      } catch (error) {
+        this.error =
+          "Không thể tải danh sách sản phẩm: " +
+          (error.response?.data?.message || error.message);
+        this.loading = false;
       }
     },
+    extractBrandsAndSizes() {
+      // Lấy tất cả các thương hiệu duy nhất
+      const allBrands = this.products
+        .map((product) => product.brand)
+        .filter((brand) => brand); // Lọc ra các giá trị null/undefined
+      this.brands = [...new Set(allBrands)]; // Loại bỏ các giá trị trùng lặp
+
+      // Lấy tất cả các kích cỡ duy nhất
+      const allSizes = this.products
+        .flatMap((product) => product.sizes || [])
+        .filter((size) => size); // Lọc ra các giá trị null/undefined
+      this.sizes = [...new Set(allSizes)].sort((a, b) => a - b); // Sắp xếp theo thứ tự tăng dần
+    },
+    formatPrice(price) {
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
+      }).format(price);
+    },
+    toggleSize(size) {
+      const index = this.selectedSizes.indexOf(size);
+      if (index === -1) {
+        this.selectedSizes.push(size);
+      } else {
+        this.selectedSizes.splice(index, 1);
+      }
+    },
+    selectSize(productId, size) {
+      this.selectedProductSizes[productId] = size;
+    },
     clearFilters() {
-      this.searchQuery = ''
-      this.priceSort = ''
-      this.selectedBrands = []
-      this.selectedSizes = []
-      this.minQuantity = ''
-      this.maxQuantity = ''
-    }
-  }
-}
+      this.searchQuery = "";
+      this.priceSort = "";
+      this.selectedBrands = [];
+      this.selectedSizes = [];
+    },
+    canAddToCart(product) {
+      // Kiểm tra xem sản phẩm có kích cỡ và đã chọn kích cỡ chưa
+      if (product.sizes && product.sizes.length > 0) {
+        return this.selectedProductSizes[product._id] !== undefined;
+      }
+      // Nếu sản phẩm không có kích cỡ, luôn có thể thêm vào giỏ hàng
+      return true;
+    },
+    async addToCart(product) {
+      if (!this.canAddToCart(product)) {
+        alert("Vui lòng chọn kích cỡ!");
+        return;
+      }
+
+      try {
+        // Chuẩn bị dữ liệu để thêm vào giỏ hàng
+        const cartItem = {
+          productId: product._id,
+          quantity: 1,
+        };
+
+        // Nếu có kích cỡ được chọn, thêm vào dữ liệu
+        if (this.selectedProductSizes[product._id]) {
+          cartItem.size = this.selectedProductSizes[product._id];
+        }
+
+        // Gọi API thêm vào giỏ hàng
+        await cartService.addToCart(cartItem);
+
+        // Thông báo thành công
+        alert(`Đã thêm ${product.name} vào giỏ hàng!`);
+      } catch (error) {
+        alert(
+          "Không thể thêm sản phẩm vào giỏ hàng: " +
+            (error.response?.data?.message || error.message)
+        );
+      }
+    },
+  },
+};
 </script>
 
 <style scoped>
 .products-container {
   display: grid;
-  grid-template-columns: 250px 1fr; /* Giảm width của sidebar xuống, chia ra 2 cột, côt sidebar 250px, cột còn lại là 1 frem */
-  gap: 20px; /* Giảm khoảng cách giữa sidebar và products */
+  grid-template-columns: 250px 1fr; /* Sidebar 250px, content 1fr */
+  gap: 20px;
   padding-top: 30px;
-  width: 100%; /* Để container full width */
-  margin-bottom: 40px; 
+  width: 100%;
+  margin-bottom: 40px;
 }
 
 .filters-sidebar {
   background: white;
   padding: 15px;
-  border-radius: 0; /* Bỏ border radius */
-  box-shadow: none; /* Bỏ shadow */
-  height: 100%; /* Để sidebar full height */
-  border-right: 1px solid #eee; /* Thêm đường kẻ phân cách */
+  border-radius: 0;
+  box-shadow: none;
+  height: 100%;
+  border-right: 1px solid #eee;
 }
 
 .products-grid {
   background: white;
-  padding: 20px 30px; /* Tăng padding bên phải */
-  border-radius: 0; /* Bỏ border radius */
-  box-shadow: none; /* Bỏ shadow */
+  padding: 20px 30px;
+  border-radius: 0;
+  box-shadow: none;
 }
 
 .products-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); /* Điều chỉnh kích thước card */
-  gap: 25px; /* Tăng khoảng cách giữa các card */
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 25px;
 }
 
 .filter-section {
@@ -343,19 +353,6 @@ select {
   border-color: #ff6f61;
 }
 
-.quantity-filter {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.quantity-filter input {
-  width: 100px;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-}
-
 .clear-filters {
   width: 100%;
   padding: 10px;
@@ -370,13 +367,6 @@ select {
   background: #e0e0e0;
 }
 
-.products-grid {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-}
-
 .products-header {
   margin-bottom: 20px;
   display: flex;
@@ -384,24 +374,25 @@ select {
   align-items: center;
 }
 
-.products-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  gap: 20px;
-}
-
 .product-card {
   border: 1px solid #eee;
   border-radius: 10px;
   overflow: hidden;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background-color: white;
 }
 
 .product-card:hover {
   transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
 }
 
-.product-card img {
+.product-image {
   width: 100%;
   height: 200px;
   object-fit: cover;
@@ -409,47 +400,71 @@ select {
 
 .product-info {
   padding: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
 }
 
 .product-info h3 {
   margin: 0 0 10px 0;
   font-size: 1.1em;
+  color: #333;
 }
 
 .brand {
   color: #666;
   margin-bottom: 5px;
+  font-size: 0.9em;
 }
 
 .price {
   color: #ff6f61;
   font-weight: bold;
   margin-bottom: 5px;
+  font-size: 1.1em;
 }
 
 .stock {
   color: #666;
   font-size: 0.9em;
+  margin-top: auto;
   margin-bottom: 10px;
 }
 
-.add-to-cart {
-  width: 100%;
-  padding: 10px;
-  background: #ff6f61;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background 0.3s ease;
+.out-of-stock {
+  color: #f44336;
+  font-weight: bold;
 }
 
-.add-to-cart:hover {
-  background: #e65d50;
+.view-details-btn {
+  background-color: #ff6f61;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  margin-top: 10px;
+  transition: background-color 0.3s ease;
+}
+
+.view-details-btn:hover {
+  background-color: #ff5546;
+}
+
+.loading,
+.error {
+  text-align: center;
+  padding: 20px;
+  grid-column: 1 / -1;
+}
+
+.error {
+  color: red;
 }
 
 @media (max-width: 768px) {
-  .main-container {
+  .products-container {
     grid-template-columns: 1fr;
   }
 

@@ -1,33 +1,48 @@
 <template>
   <h2>QUẢN LÝ NGƯỜI DÙNG</h2>
   <div class="customer-list">
-    <div class="search-bar">
-      <input type="text" v-model="searchQuery" placeholder="Tìm kiếm khách hàng..." />
+    <!-- Loading indicator -->
+    <div v-if="loading" class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Đang tải dữ liệu người dùng...</p>
     </div>
-    <table>
-      <thead>
-        <tr>
-          <th>Mã người dùng</th>
-          <th>Họ và tên</th>
-          <th>Email</th>
-          <th>Số điện thoại</th>
-          <th>Hành động</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="customer in filteredCustomers" :key="customer.id">
-          <td>{{ customer.id }}</td>
-          <td>{{ customer.fullName }}</td>
-          <td>{{ customer.email }}</td>
-          <td>{{ customer.numberPhone }}</td>
-          <td>
-            <button class="btn delete" @click="confirmDelete(customer.id)">Xóa</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <div class="total-customers">
-      Tổng số lượng người dùng: {{ customers.length }}
+    
+    <!-- Error message -->
+    <div v-if="error" class="error-message">
+      <p>{{ error }}</p>
+      <button v-if="!isAuthenticated" @click="redirectToLogin" class="btn login">Đăng nhập</button>
+      <button v-else @click="fetchUsers" class="btn retry">Thử lại</button>
+    </div>
+    
+    <div v-if="!loading && !error && isAuthenticated">
+      <div class="search-bar">
+        <input type="text" v-model="searchQuery" placeholder="Tìm kiếm khách hàng..." />
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Mã người dùng</th>
+            <th>Họ và tên</th>
+            <th>Email</th>
+            <th>Số điện thoại</th>
+            <th>Hành động</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="customer in filteredCustomers" :key="customer._id">
+            <td>{{ customer._id }}</td>
+            <td>{{ customer.fullName || customer.name || 'N/A' }}</td>
+            <td>{{ customer.email }}</td>
+            <td>{{ customer.numberPhone || customer.phone || 'N/A' }}</td>
+            <td>
+              <button class="btn delete" @click="confirmDelete(customer._id)">Xóa</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="total-customers">
+        Tổng số lượng người dùng: {{ customers.length }}
+      </div>
     </div>
 
     <div v-if="showModal" class="modal-overlay">
@@ -43,6 +58,8 @@
 </template>
 
 <script>
+import userService from '@/services/userService';
+
 export default {
   name: 'ListCustomer',
   data() {
@@ -50,7 +67,10 @@ export default {
       customers: [],
       showModal: false,
       customerIdToDelete: null,
-      searchQuery: ''
+      searchQuery: '',
+      loading: false,
+      error: null,
+      isAuthenticated: false
     }
   },
   computed: {
@@ -58,29 +78,57 @@ export default {
       return this.customers.filter(customer => {
         const query = this.searchQuery.toLowerCase();
         return (
-          customer.email.toLowerCase().includes(query) ||
-          customer.numberPhone.includes(query)
+          (customer.email && customer.email.toLowerCase().includes(query)) ||
+          (customer.phone && customer.phone.includes(query)) ||
+          (customer.numberPhone && customer.numberPhone.includes(query))
         );
       });
     }
   },
   created() {
-    const initialCustomers = [
-      { id: '1', fullName: 'John Doe', email: 'john@example.com', numberPhone: '123-456-7890'},
-      { id: '2', fullName: 'Jane Smith', email: 'jane@example.com', numberPhone: '098-765-4321'},
-      { id: '3', fullName: 'Alice Johnson', email: 'alice@example.com', numberPhone: '234-567-8901'},
-      { id: '4', fullName: 'Bob Brown', email: 'bob@example.com', numberPhone: '345-678-9012'},
-      { id: '5', fullName: 'Charlie Davis', email: 'charlie@example.com', numberPhone: '456-789-0123'},
-      { id: '6', fullName: 'Diana Evans', email: 'diana@example.com', numberPhone: '567-890-1234'},
-      { id: '7', fullName: 'Edward Foster', email: 'edward@example.com', numberPhone: '678-901-2345'},
-      { id: '8', fullName: 'Fiona Green', email: 'fiona@example.com', numberPhone: '789-012-3456'},
-      { id: '9', fullName: 'George Harris', email: 'george@example.com', numberPhone: '890-123-4567'},
-      { id: '10', fullName: 'Hannah White', email: 'hannah@example.com', numberPhone: '901-234-5678'}
-    ]
-    const savedCustomers = JSON.parse(localStorage.getItem('customers'));
-    this.customers = savedCustomers || initialCustomers;
+    this.checkAuthentication();
   },
   methods: {
+    checkAuthentication() {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        this.error = 'Bạn cần đăng nhập để xem danh sách người dùng';
+        this.isAuthenticated = false;
+        return;
+      }
+      
+      this.isAuthenticated = true;
+      this.fetchUsers();
+    },
+    async fetchUsers() {
+      this.loading = true;
+      this.error = null;
+      
+      try {
+        const response = await userService.getAllUsers();
+        if (response.data && response.data.users) {
+          this.customers = response.data.users;
+        } else {
+          this.customers = response.data;
+        }
+        
+        console.log('Dữ liệu người dùng:', this.customers);
+      } catch (error) {
+        console.error('Error fetching users:', error);
+        if (error.response && error.response.status === 401) {
+          this.error = 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại';
+          this.isAuthenticated = false;
+          localStorage.removeItem('token');
+        } else {
+          this.error = 'Không thể tải dữ liệu người dùng';
+        }
+      } finally {
+        this.loading = false;
+      }
+    },
+    redirectToLogin() {
+      this.$router.push('/admin/login');
+    },
     viewCustomer(customer) {
       console.log('Viewing customer:', customer);
     },
@@ -88,10 +136,15 @@ export default {
       this.customerIdToDelete = customerId;
       this.showModal = true;
     },
-    deleteCustomer() {
-      this.customers = this.customers.filter(customer => customer.id !== this.customerIdToDelete);
-      localStorage.setItem('customers', JSON.stringify(this.customers));
-      this.closeModal();
+    async deleteCustomer() {
+      try {
+        await userService.deleteUser(this.customerIdToDelete);
+        this.customers = this.customers.filter(customer => customer._id !== this.customerIdToDelete);
+        this.closeModal();
+      } catch (error) {
+        console.error('Error deleting user:', error);
+        this.error = 'Không thể xóa người dùng';
+      }
     },
     closeModal() {
       this.showModal = false;
@@ -150,6 +203,19 @@ th {
   color: white;
 }
 
+.btn.retry {
+  background: #3498db;
+  color: white;
+  padding: 10px 20px;
+}
+
+.btn.login {
+  background: #2ecc71;
+  color: white;
+  padding: 10px 20px;
+  font-weight: bold;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;
@@ -193,5 +259,36 @@ th {
   border: 1px solid #ddd;
   border-radius: 4px;
   width: 400px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+}
+
+.loading-spinner {
+  border: 4px solid rgba(0, 0, 0, 0.1);
+  border-top: 4px solid #3498db;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.error-message {
+  text-align: center;
+  padding: 20px;
+  color: #e74c3c;
+  background-color: #ffeeee;
+  border-radius: 4px;
+  margin-bottom: 20px;
 }
 </style>

@@ -13,31 +13,58 @@
           <input type="password" v-model="password" placeholder="Mật khẩu" required>
         </div>
 
-        <p class="subtitle">Bạn chưa có tài khoản? <router-link to="/register">Đăng ký</router-link></p>
+        <div class="error-message" v-if="errorMessage">
+          {{ errorMessage }}
+        </div>
 
-        <button type="submit" class="login-btn">Đăng nhập</button>
+        <p class="subtitle">Bạn chưa có tài khoản? <router-link to="/register">Đăng ký</router-link></p>
+        <p class="admin-link"><router-link to="/admin/login">Đăng nhập với tư cách quản trị viên</router-link></p>
+
+        <button type="submit" class="login-btn" :disabled="loading">
+          {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+        </button>
       </form>
     </div>
   </div>
 </template>
 
 <script>
+import authService from '../services/authService';
+
 export default {
   name: 'ComLogin',
   data() {
     return {
-      username: '',
+      email: '',
       password: '',
-      rememberMe: false
+      errorMessage: '',
+      loading: false
     }
   },
   methods: {
-    handleLogin() {
-      console.log('Login attempt:', { 
-        username: this.username, 
-        password: this.password,
-        rememberMe: this.rememberMe 
-      })
+    async handleLogin() {
+      this.loading = true;
+      this.errorMessage = '';
+      
+      try {
+        const response = await authService.login({
+          email: this.email,
+          password: this.password
+        });
+        
+        // Lưu token vào localStorage
+        localStorage.setItem('token', response.data.token);
+        
+        // Chuyển hướng đến trang chủ
+        this.$router.push('/');
+        
+        console.log('Login successful!', response.data);
+      } catch (error) {
+        console.error('Login error:', error);
+        this.errorMessage = error.response?.data?.message || 'Đăng nhập không thành công. Vui lòng thử lại.';
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
@@ -148,4 +175,34 @@ input:focus {
   background: #e67e22;
 }
 
+.error-message {
+  color: #ff4d4d;
+  background-color: rgba(255, 77, 77, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.login-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.admin-link {
+  margin-top: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+.admin-link a {
+  color: #00e6e6;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.admin-link a:hover {
+  color: white;
+  text-decoration: underline;
+}
 </style>

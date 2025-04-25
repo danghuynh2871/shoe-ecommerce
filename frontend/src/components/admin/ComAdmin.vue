@@ -1,5 +1,5 @@
 <template>
-  <div class="admin-container">
+  <div v-if="isAdmin" class="admin-container">
     <div class="admin-sidebar">
       <h2>Admin Dashboard</h2>
       <nav class="nav-menu">
@@ -33,26 +33,50 @@
             <router-link to="/admin/orders/list" class="nav-item sub-item">Lịch sử đơn hàng</router-link>
           </div>
         </div>
-
+        
+        <div class="logout-button">
+          <button @click="logout" class="logout-btn">Đăng xuất</button>
+        </div>
       </nav>
     </div>
     <div class="admin-content">
       <router-view></router-view>
     </div>
   </div>
+  <div v-else class="access-denied">
+    <h2>Không có quyền truy cập</h2>
+    <p>Bạn cần đăng nhập với tài khoản admin để truy cập trang này.</p>
+    <button @click="redirectToLogin" class="login-btn">Đăng nhập</button>
+  </div>
 </template>
 
 <script>
+import authService from '../../services/authService';
+
 export default {
   name: 'ComAdmin',
   data() {
     return {
       showProductSubMenu: false,
       showCustomerSubMenu: false,
-      showOrderSubMenu: false
+      showOrderSubMenu: false,
+      isAdmin: false
     }
   },
+  created() {
+    this.checkAdminAuth();
+  },
   methods: {
+    checkAdminAuth() {
+      this.isAdmin = authService.isAdminLoggedIn();
+    },
+    redirectToLogin() {
+      this.$router.push('/admin/login');
+    },
+    logout() {
+      authService.adminLogout();
+      this.$router.push('/admin/login');
+    },
     toggleProductSubMenu() {
       this.showProductSubMenu = !this.showProductSubMenu;
     },
@@ -124,5 +148,64 @@ export default {
 
 .sub-item {
   padding-left: 35px; /* Additional padding for child items */
+}
+
+.access-denied {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #f8f9fa;
+  text-align: center;
+  padding: 0 20px;
+}
+
+.access-denied h2 {
+  font-size: 2rem;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+.access-denied p {
+  font-size: 1.2rem;
+  color: #7f8c8d;
+  margin-bottom: 30px;
+}
+
+.login-btn {
+  padding: 12px 30px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+  background-color: #2980b9;
+}
+
+.logout-button {
+  margin-top: 30px;
+  padding: 0 20px;
+}
+
+.logout-btn {
+  width: 100%;
+  padding: 12px 20px;
+  background-color: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.logout-btn:hover {
+  background-color: #c0392b;
 }
 </style>
