@@ -1,11 +1,11 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/userModel");
-const Admin = require("../models/adminModel");
 
 const authenticateToken = async (req, res, next) => {
   try {
     let token;
 
+    // Kiểm tra định dạng header Authorization
     if (req.headers.authorization?.startsWith("Bearer ")) {
       token = req.headers.authorization.split(" ")[1];
     }
@@ -17,16 +17,11 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
+    // Xác thực token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    // Kiểm tra cả User và Admin
-    let user = null;
-    
-    if (decoded.role === "admin") {
-      user = await Admin.findById(decoded.userId).select("-password");
-    } else {
-      user = await User.findById(decoded.userId).select("-password");
-    }
+    // Tìm user theo ID từ token
+    const user = await User.findById(decoded.userId).select("-password");
 
     if (!user) {
       return res.status(401).json({
@@ -35,6 +30,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
+    // Thêm thông tin user vào request
     req.user = user;
     next();
   } catch (error) {
@@ -57,15 +53,4 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
-    next();
-  } else {
-    res.status(403).json({
-      success: false,
-      message: "Không có quyền truy cập, chỉ dành cho admin",
-    });
-  }
-};
-
-module.exports = { authenticateToken, isAdmin };
+module.exports = { authenticateToken };

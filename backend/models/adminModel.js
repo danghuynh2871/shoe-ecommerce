@@ -12,7 +12,10 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+<<<<<<< HEAD
 
+=======
+>>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac
     fullname: {
       type: String,
       required: true,
@@ -23,7 +26,10 @@ const adminSchema = new mongoose.Schema(
     }
   },
   { timestamps: true }
+<<<<<<< HEAD
 
+=======
+>>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac
 );
 
 // Mã hóa mật khẩu trước khi lưu
@@ -52,4 +58,7 @@ adminSchema.statics.createDefaultAdmin = async function () {
 
 const Admin = mongoose.model("Admin", adminSchema);
 module.exports = Admin;
+<<<<<<< HEAD
 
+=======
+>>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac

@@ -404,4 +404,3 @@ exports.updateOrderStatus = asyncHandler(async (req, res) => {
     order,
   });
 });
-

@@ -5,8 +5,7 @@
   "main": "server.js",
   "scripts": {
     "dev": "nodemon ./backend/server.js",
-    "start": "node ./backend/server.js",
-    "create-admin": "node backend/config/createAdmin.js"
+    "start": "node ./backend/server.js"
   },
   "keywords": [
     "nodejs"

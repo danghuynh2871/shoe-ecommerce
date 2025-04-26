@@ -5,9 +5,11 @@ const Product = require("../models/productModel");
 // Lấy giỏ hàng
 exports.getCart = asyncHandler(async (req, res) => {
   try {
+    console.log('Get cart request from user:', req.user._id);
+    
     let cart = await Cart.findOne({ userId: req.user._id }).populate(
       "items.productId",
-      "name price stock"
+      "name price stock image"
     );
 
     if (!cart) {
@@ -20,12 +22,11 @@ exports.getCart = asyncHandler(async (req, res) => {
 
     res.status(200).json({
       success: true,
-      cart: {
-        ...cart.toObject(),
-        vatRate: "10%",
-      },
+      cartItems: cart.items,
+      summary: cart.cartSummary
     });
   } catch (error) {
+    console.error('Get cart error:', error);
     res.status(500).json({
       success: false,
       message: "Lỗi khi lấy giỏ hàng: " + error.message,
@@ -35,7 +36,9 @@ exports.getCart = asyncHandler(async (req, res) => {
 
 exports.addToCart = asyncHandler(async (req, res) => {
   try {
-    const { productId, quantity } = req.body;
+    const { productId, quantity, size } = req.body;
+    
+    console.log('Add to cart request:', { productId, quantity, size, userId: req.user._id });
 
     const product = await Product.findById(productId);
     if (!product) {
@@ -56,32 +59,38 @@ exports.addToCart = asyncHandler(async (req, res) => {
     if (!cart) {
       cart = await Cart.create({
         userId: req.user._id,
-        items: [{ productId, quantity }],
+        items: [{ productId, quantity, size }],
       });
     } else {
+      // Nếu sản phẩm đã có trong giỏ hàng (cùng kích thước nếu có), cập nhật số lượng
+      // Nếu không, thêm mới vào giỏ hàng
       const itemIndex = cart.items.findIndex(
-        (item) => item.productId.toString() === productId
+        (item) => item.productId.toString() === productId && 
+                 (size ? item.size === size : true)
       );
 
       if (itemIndex > -1) {
         cart.items[itemIndex].quantity = quantity;
       } else {
-        cart.items.push({ productId, quantity });
+        cart.items.push({ productId, quantity, size });
       }
       await cart.save();
     }
 
-    await cart.populate("items.productId", "name price stock");
+    // Populate product details for response
+    await cart.populate("items.productId", "name price stock image");
 
     res.status(200).json({
       success: true,
       message: "Thêm vào giỏ hàng thành công!",
-      cart: {
-        ...cart.toObject(),
-        vatRate: "10%",
-      },
+      cartItems: cart.items.map(item => ({
+        productId: item.productId,
+        quantity: item.quantity,
+        size: item.size
+      }))
     });
   } catch (error) {
+    console.error('Cart add error:', error);
     res.status(500).json({
       success: false,
       message: "Lỗi khi thêm vào giỏ hàng: " + error.message,

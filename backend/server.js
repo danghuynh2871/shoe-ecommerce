@@ -9,7 +9,6 @@ const orderRoutes = require("./routes/orderRoutes");
 const adminRoutes = require("./routes/adminRoutes");
 const Admin = require("./models/adminModel");
 
-// Routes
 const app = express();
 const port = process.env.PORT || 3000;
 

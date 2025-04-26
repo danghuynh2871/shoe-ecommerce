@@ -5,6 +5,7 @@ const userSchema = new mongoose.Schema(
   {
     email: {
       type: String,
+<<<<<<< HEAD
       required: [true, "Email không được để trống"],
       unique: true,
       trim: true,
@@ -33,14 +34,33 @@ const userSchema = new mongoose.Schema(
         /^(\+\d{1,3}[- ]?)?\d{10,12}$/,
         "Vui lòng nhập số điện thoại hợp lệ",
       ],
+=======
+      required: true,
+      unique: true,
+    },
+    password: {
+      type: String,
+      required: true,
+    },
+    fullname: {
+      type: String,
+      required: true,
+    },
+    phone: {
+      type: String,
+      required: false,
+>>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac
     },
     role: {
       type: String,
       default: "user",
+<<<<<<< HEAD
       enum: {
         values: ["user", "admin"],
         message: "Vai trò phải là 'user' hoặc 'admin'",
       },
+=======
+>>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac
     },
   },
   { timestamps: true }
