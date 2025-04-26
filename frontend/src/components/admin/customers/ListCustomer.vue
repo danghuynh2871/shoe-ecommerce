@@ -108,8 +108,8 @@ export default {
   },
   methods: {
     checkAuthentication() {
-      const token = localStorage.getItem("token");
-      if (!token) {
+      const adminToken = localStorage.getItem("adminToken");
+      if (!adminToken) {
         this.error = "Bạn cần đăng nhập để xem danh sách người dùng";
         this.isAuthenticated = false;
         return;
@@ -136,7 +136,7 @@ export default {
         if (error.response && error.response.status === 401) {
           this.error = "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại";
           this.isAuthenticated = false;
-          localStorage.removeItem("token");
+          localStorage.removeItem("adminToken");
         } else {
           this.error = "Không thể tải dữ liệu người dùng";
         }

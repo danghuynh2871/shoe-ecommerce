@@ -11,13 +11,10 @@ const cartItemSchema = new mongoose.Schema({
     required: true,
     min: [1, "Số lượng phải lớn hơn 0"],
   },
-<<<<<<< HEAD
-=======
   size: {
     type: String,
     required: false
   }
->>>>>>> e6045a86539bd40f86ef40f106a89543c0146aac
 });
 
 const cartSchema = new mongoose.Schema(
