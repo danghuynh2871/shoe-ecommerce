@@ -2,11 +2,13 @@
   <div class="order-management">
     <h2>QUẢN LÝ ĐƠN HÀNG</h2>
     <div class="search-bar">
-      <input type="text" v-model="searchQuery" placeholder="Tìm kiếm đơn hàng..." /><i class="fas fa-search"></i>
+      <input
+        type="text"
+        v-model="searchQuery"
+        placeholder="Tìm kiếm đơn hàng..."
+      /><i class="fas fa-search"></i>
     </div>
-    <div v-if="loading" class="loading">
-      Đang tải dữ liệu...
-    </div>
+    <div v-if="loading" class="loading">Đang tải dữ liệu...</div>
     <div v-else-if="error" class="error">
       {{ error }}
     </div>
@@ -15,7 +17,10 @@
         <thead>
           <tr>
             <th>Mã đơn hàng</th>
+            <th>Thông tin sản phẩm</th>
             <th>Người đặt hàng</th>
+            <th>Số điện thoại</th>
+            <th>Địa chỉ</th>
             <th>Ngày đặt</th>
             <th>Tổng tiền</th>
             <th>Trạng thái</th>
@@ -25,7 +30,32 @@
         <tbody>
           <tr v-for="order in filteredOrders" :key="order._id">
             <td>{{ order._id.substring(0, 8) }}</td>
-            <td>{{ order.userId ? order.userId.fullname : 'Không có thông tin' }}</td>
+            <td>
+              <div v-if="order.items && order.items.length > 0">
+                <div v-for="(item, index) in order.items" :key="index">
+                  {{ item.name || "Không có tên" }}, Size:
+                  {{ item.size || "N/A" }}, SL: {{ item.quantity || 0 }}
+                </div>
+              </div>
+              <div v-else>Không có thông tin</div>
+            </td>
+            <td>
+              {{ order.userId ? order.userId.fullname : "Không có thông tin" }}
+            </td>
+            <td>
+              {{
+                order.receiverInfo
+                  ? order.receiverInfo.phone
+                  : "Không có thông tin"
+              }}
+            </td>
+            <td>
+              {{
+                order.receiverInfo
+                  ? order.receiverInfo.address
+                  : "Không có thông tin"
+              }}
+            </td>
             <td>{{ formatDate(order.createdAt) }}</td>
             <td>{{ formatPrice(order.totalAmount) }}</td>
             <td>
@@ -34,9 +64,6 @@
               </span>
             </td>
             <td>
-              <button @click="viewOrderDetails(order._id)" class="btn view-btn">
-                Chi tiết
-              </button>
               <button @click="showStatusForm(order)" class="btn update-btn">
                 Cập nhật
               </button>
@@ -44,9 +71,7 @@
           </tr>
         </tbody>
       </table>
-      <div class="total-orders">
-        Tổng số đơn hàng: {{ orders.length }}
-      </div>
+      <div class="total-orders">Tổng số đơn hàng: {{ orders.length }}</div>
     </div>
 
     <!-- Modal cập nhật trạng thái -->
@@ -63,7 +88,9 @@
         </div>
         <div class="modal-buttons">
           <button @click="updateOrderStatus" class="btn save-btn">Lưu</button>
-          <button @click="showUpdateModal = false" class="btn cancel-btn">Hủy</button>
+          <button @click="showUpdateModal = false" class="btn cancel-btn">
+            Hủy
+          </button>
         </div>
       </div>
     </div>
@@ -71,36 +98,38 @@
 </template>
 
 <script>
-import orderService from '../../../services/orderService';
+import orderService from "../../../services/orderService";
 
 export default {
-  name: 'ListOrder',
+  name: "ListOrder",
   data() {
     return {
-      searchQuery: '',
+      searchQuery: "",
       orders: [],
       loading: true,
       error: null,
       showUpdateModal: false,
       selectedOrder: null,
-      newStatus: ''
-    }
+      newStatus: "",
+    };
   },
   computed: {
     filteredOrders() {
       if (!this.searchQuery) {
         return this.orders;
       }
-      
+
       const query = this.searchQuery.toLowerCase();
-      return this.orders.filter(order => {
+      return this.orders.filter((order) => {
         return (
           (order._id && order._id.toLowerCase().includes(query)) ||
-          (order.userId && order.userId.fullname && order.userId.fullname.toLowerCase().includes(query)) ||
+          (order.userId &&
+            order.userId.fullname &&
+            order.userId.fullname.toLowerCase().includes(query)) ||
           (order.status && order.status.toLowerCase().includes(query))
         );
       });
-    }
+    },
   },
   created() {
     this.fetchOrders();
@@ -113,33 +142,35 @@ export default {
         this.orders = response.data.orders;
         this.loading = false;
       } catch (error) {
-        this.error = "Không thể tải danh sách đơn hàng: " + (error.response?.data?.message || error.message);
+        this.error =
+          "Không thể tải danh sách đơn hàng: " +
+          (error.response?.data?.message || error.message);
         this.loading = false;
       }
     },
     formatDate(dateString) {
-      if (!dateString) return '';
+      if (!dateString) return "";
       const date = new Date(dateString);
-      return date.toLocaleDateString('vi-VN', {
-        day: '2-digit',
-        month: '2-digit',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      return date.toLocaleDateString("vi-VN", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
     },
     formatPrice(price) {
-      if (!price) return '0 đ';
-      return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
+      if (!price) return "0 đ";
+      return new Intl.NumberFormat("vi-VN", {
+        style: "currency",
+        currency: "VND",
       }).format(price);
     },
     translateStatus(status) {
       const statusMap = {
-        'processing': 'Đang xử lý',
-        'delivered': 'Đã giao hàng',
-        'cancelled': 'Đã hủy'
+        processing: "Đang xử lý",
+        delivered: "Đã giao hàng",
+        cancelled: "Đã hủy",
       };
       return statusMap[status] || status;
     },
@@ -153,23 +184,30 @@ export default {
     },
     async updateOrderStatus() {
       if (!this.selectedOrder || !this.newStatus) return;
-      
+
       try {
-        await orderService.updateOrderStatus(this.selectedOrder._id, { status: this.newStatus });
+        await orderService.updateOrderStatus(this.selectedOrder._id, {
+          status: this.newStatus,
+        });
         // Cập nhật trạng thái trong danh sách hiện tại
-        const index = this.orders.findIndex(o => o._id === this.selectedOrder._id);
+        const index = this.orders.findIndex(
+          (o) => o._id === this.selectedOrder._id
+        );
         if (index !== -1) {
           this.orders[index].status = this.newStatus;
         }
         this.showUpdateModal = false;
         // Thông báo thành công (có thể sử dụng thư viện thông báo)
-        alert('Cập nhật trạng thái đơn hàng thành công!');
+        alert("Cập nhật trạng thái đơn hàng thành công!");
       } catch (error) {
-        alert('Lỗi khi cập nhật trạng thái: ' + (error.response?.data?.message || error.message));
+        alert(
+          "Lỗi khi cập nhật trạng thái: " +
+            (error.response?.data?.message || error.message)
+        );
       }
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -193,10 +231,11 @@ table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+th,
+td {
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid #ddd;
@@ -216,12 +255,12 @@ th {
 }
 
 .view-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 
 .update-btn {
-  background: #2196F3;
+  background: #2196f3;
   color: white;
 }
 
@@ -231,7 +270,8 @@ th {
   text-align: right;
 }
 
-.loading, .error {
+.loading,
+.error {
   text-align: center;
   padding: 20px;
 }
@@ -247,17 +287,17 @@ th {
 }
 
 .processing {
-  background-color: #FFC107;
+  background-color: #ffc107;
   color: #000;
 }
 
 .delivered {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
 }
 
 .cancelled {
-  background-color: #F44336;
+  background-color: #f44336;
   color: white;
 }
 
@@ -269,7 +309,7 @@ th {
   top: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.5);
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -306,7 +346,7 @@ th {
 }
 
 .save-btn {
-  background: #4CAF50;
+  background: #4caf50;
   color: white;
 }
 

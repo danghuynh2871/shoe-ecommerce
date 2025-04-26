@@ -13,6 +13,8 @@ import CustomerManagement from "@/components/admin/ComCustomerManagement.vue";
 import ComOrderManagement from "@/components/admin/ComOrderManagement.vue";
 import Home from "@/components/ComHome.vue";
 import Cart from "@/components/ComCart.vue";
+import Checkout from "@/components/ComCheckout.vue";
+import OrderHistory from "@/components/ComOrderHistory.vue";
 import About from "@/components/ComAboutUs.vue";
 import Contact from "@/components/ComContact.vue";
 import Products from "@/components/ComListProduct.vue";
@@ -48,6 +50,20 @@ const routes = [
     path: "/cart",
     name: "Cart",
     component: Cart,
+  },
+  // đối tượng trang checkout
+  {
+    path: "/checkout",
+    name: "Checkout",
+    component: Checkout,
+    meta: { requiresAuth: true },
+  },
+  // đối tượng trang lịch sử đơn hàng
+  {
+    path: "/order-history",
+    name: "OrderHistory",
+    component: OrderHistory,
+    meta: { requiresAuth: true },
   },
   // đối tượng trang about
   {
@@ -134,7 +150,7 @@ const router = createRouter({
   routes,
 });
 
-// Navigation guard to check for admin authentication
+// Navigation guard to check for authentication
 router.beforeEach((to, from, next) => {
   // Check if the route requires admin authentication
   if (to.meta.requiresAdminAuth) {
@@ -142,6 +158,20 @@ router.beforeEach((to, from, next) => {
     if (!localStorage.getItem('adminToken')) {
       // If not logged in, redirect to admin login page
       next({ name: 'AdminLogin' });
+    } else {
+      // If logged in, proceed to the route
+      next();
+    }
+  } 
+  // Check if the route requires user authentication
+  else if (to.meta.requiresAuth) {
+    // Check if user is logged in
+    if (!localStorage.getItem('token')) {
+      // If not logged in, redirect to login page with redirect back
+      next({ 
+        name: 'Login',
+        query: { redirect: to.fullPath } 
+      });
     } else {
       // If logged in, proceed to the route
       next();

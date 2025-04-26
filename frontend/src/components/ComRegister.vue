@@ -25,7 +25,15 @@
           <label for="phoneNumber">Số Điện Thoại</label>
           <input type="text" id="phoneNumber" v-model="phoneNumber" placeholder="VD: 0123456789" required>
         </div>
-        <button type="submit" class="register-btn">Đăng Kí</button>
+        
+        <div class="error-message" v-if="error">
+          {{ error }}
+        </div>
+        
+        <button type="submit" class="register-btn" :disabled="loading">
+          <span v-if="loading">Đang xử lý...</span>
+          <span v-else>Đăng Kí</span>
+        </button>
       </form>
       <p class="subtitle">Bạn đã có tài khoản? <router-link to="/login">Đăng nhập</router-link></p>
     </div>
@@ -33,6 +41,8 @@
 </template>
 
 <script>
+import authService from '../services/authService';
+
 export default {
   name: 'ComRegister', //tên của component
   data() { //chứa các thuộc tính của component
@@ -41,30 +51,65 @@ export default {
       email: '', 
       password: '',
       confirmPassword: '',
-      phoneNumber: ''
+      phoneNumber: '',
+      loading: false,
+      error: null
     }
   },
   //methods là một đối tượng chứa các phương thức của component
   methods: { //chứa các phương thức của component
-    handleRegister() { //hàm xử lý sự kiện submit của form
+    async handleRegister() { //hàm xử lý sự kiện submit của form
+      this.error = null;
+      
+      // Validate form
       if (this.password !== this.confirmPassword) { //kiểm tra mật khẩu nhập lại có khớp với mật khẩu đã nhập hay không
         alert('Mật khẩu nhập lại không khớp!');
         return;
       }
       
-      // if (this.password.length < 4) {
-      //   alert('Mật khẩu phải có ít nhất 4 ký tự!');
-      //   return;
-      // }
+      if (this.password.length < 4) {
+        alert('Mật khẩu phải có ít nhất 4 ký tự!');
+        return;
+      }
 
-      console.log('Registration attempt:', {
-        fullName: this.fullName, //gán giá trị cho các thuộc tính lấy từ form
-        email: this.email,
-        password: this.password,
-        confirmPassword: this.confirmPassword,
-        phoneNumber: this.phoneNumber
-      })
-      this.$router.push('/login') //chuyển hướng đến trang login
+      if (!/^[0-9]{10}$/.test(this.phoneNumber)) {
+        alert('Số điện thoại không hợp lệ! Vui lòng nhập 10 chữ số.');
+        return;
+      }
+
+      try {
+        this.loading = true;
+        
+        // Register user via auth service
+        const userData = {
+          fullname: this.fullName,
+          email: this.email,
+          password: this.password,
+          phone: this.phoneNumber
+        };
+        
+        const response = await authService.register(userData);
+        
+        // Show success message
+        alert('Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.');
+        
+        // Redirect to login page
+        this.$router.push('/login');
+        
+        console.log('Registration successful:', response.data);
+      } catch (error) {
+        console.error('Registration error:', error);
+        
+        if (error.response && error.response.data) {
+          // Show API error message
+          alert('Đăng ký thất bại: ' + (error.response.data.message || 'Vui lòng thử lại sau'));
+        } else {
+          // Show generic error message
+          alert('Đăng ký thất bại: Vui lòng kiểm tra kết nối mạng và thử lại sau');
+        }
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
@@ -146,6 +191,20 @@ input:focus {
 
 .register-btn:hover {
   background: #e67e22;
+}
+
+.register-btn:disabled {
+  background: #d9d9d9;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.2);
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
 .subtitle {

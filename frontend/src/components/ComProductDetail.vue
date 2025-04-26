@@ -75,7 +75,7 @@
           <button
             class="add-to-cart-btn"
             @click="addToCart"
-            :disabled="!canAddToCart"
+            
           >
             Thêm Vào Giỏ Hàng
           </button>
@@ -169,23 +169,83 @@ export default {
     },
     async addToCart() {
       if (!this.canAddToCart) {
+        if (!this.selectedSize) {
+          alert("Vui lòng chọn kích thước trước khi thêm vào giỏ hàng!");
+          return;
+        }
+        if (this.quantity <= 0 || this.quantity > this.product.stock) {
+          alert("Vui lòng chọn số lượng hợp lệ!");
+          return;
+        }
+        return;
+      }
+
+      // Kiểm tra xem người dùng đã đăng nhập chưa
+      const token = localStorage.getItem('token');
+      if (!token) {
+        const confirmLogin = confirm("Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng. Chuyển đến trang đăng nhập?");
+        if (confirmLogin) {
+          this.$router.push(`/login?redirect=/products/${this.product._id}`);
+        }
         return;
       }
 
       try {
+        // Hiển thị thông báo đang xử lý
+        const addingBtn = document.querySelector('.add-to-cart-btn');
+        const originalText = addingBtn.textContent;
+        addingBtn.disabled = true;
+        addingBtn.textContent = "Đang thêm...";
+
+        // Chuẩn bị dữ liệu sản phẩm để thêm vào giỏ hàng
         const cartItem = {
           productId: this.product._id,
           quantity: this.quantity,
-          size: this.selectedSize,
+          size: this.selectedSize
         };
 
-        await cartService.addToCart(cartItem);
+        console.log('Sending to cart API:', JSON.stringify(cartItem));
+        
+        const response = await cartService.addToCart(cartItem);
+        console.log('Add to cart response:', response.data);
+        
+        // Hiển thị thông báo thành công
         alert(`Đã thêm ${this.product.name} vào giỏ hàng!`);
+        
+        // Khôi phục nút
+        addingBtn.disabled = false;
+        addingBtn.textContent = originalText;
       } catch (error) {
-        alert(
-          "Không thể thêm sản phẩm vào giỏ hàng: " +
-            (error.response?.data?.message || error.message)
-        );
+        console.error('Add to cart error:', error);
+        
+        let errorMessage = "Không thể thêm sản phẩm vào giỏ hàng: ";
+        
+        if (error.response) {
+          console.error('Response error:', error.response.status, error.response.data);
+          if (error.response.status === 401) {
+            errorMessage = "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.";
+            alert(errorMessage);
+            localStorage.removeItem('token'); // Clear invalid token
+            this.$router.push('/login');
+            return;
+          } else {
+            errorMessage += error.response.data?.message || `Lỗi máy chủ (${error.response.status})`;
+          }
+        } else if (error.request) {
+          console.error('Request error:', error.request);
+          errorMessage += "Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.";
+        } else {
+          errorMessage += error.message;
+        }
+        
+        alert(errorMessage);
+        
+        // Khôi phục nút
+        const addingBtn = document.querySelector('.add-to-cart-btn');
+        if (addingBtn) {
+          addingBtn.disabled = false;
+          addingBtn.textContent = "Thêm Vào Giỏ Hàng";
+        }
       }
     },
   },

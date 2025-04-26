@@ -69,7 +69,24 @@ export default {
         console.log('Admin login successful!', response.data);
       } catch (error) {
         console.error('Admin login error:', error);
-        this.errorMessage = error.response?.data?.message || 'Đăng nhập không thành công. Vui lòng kiểm tra thông tin đăng nhập.';
+        
+        // Handle specific error cases
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          if (error.response.status === 401) {
+            this.errorMessage = 'Thông tin đăng nhập không chính xác';
+          } else if (error.response.status === 404) {
+            this.errorMessage = 'Endpoint không tồn tại. Vui lòng kiểm tra cấu hình API';
+          } else {
+            this.errorMessage = error.response.data?.message || 'Lỗi xác thực: ' + error.response.status;
+          }
+        } else if (error.request) {
+          // The request was made but no response was received
+          this.errorMessage = 'Không thể kết nối đến máy chủ. Vui lòng kiểm tra kết nối mạng.';
+        } else {
+          // Something happened in setting up the request
+          this.errorMessage = 'Lỗi đăng nhập: ' + error.message;
+        }
       } finally {
         this.loading = false;
       }

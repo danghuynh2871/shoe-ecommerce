@@ -26,12 +26,13 @@
           <i class="fa-regular fa-user"></i>
           <!-- User Dropdown Menu -->
           <div class="user-dropdown" v-show="isUserMenuOpen">
-            <div v-if="!user">
+            <div v-if="!isLoggedIn">
               <router-link to="/login">Đăng nhập</router-link>
               <router-link to="/register">Đăng ký</router-link>
             </div>
             <div v-else>
-              <span>{{ user.username }}</span>
+              <span class="user-greeting">Xin chào, {{ username }}</span>
+              <router-link to="/order-history">Lịch sử đơn hàng</router-link>
               <a href="#" @click.prevent="logout">Đăng xuất</a>
             </div>
           </div>
@@ -45,16 +46,50 @@
 </template>
 
 <script>
+import authService from '../services/authService';
+
 export default {
   name: 'ComHeader',
   data() {
     return {
-      isUserMenuOpen: false
+      isUserMenuOpen: false,
+      username: ''
     }
+  },
+  computed: {
+    isLoggedIn() {
+      return authService.isLoggedIn();
+    }
+  },
+  created() {
+    // Load user info if logged in
+    this.loadUserInfo();
   },
   methods: {
     toggleUserMenu() {
       this.isUserMenuOpen = !this.isUserMenuOpen;
+    },
+    loadUserInfo() {
+      if (this.isLoggedIn) {
+        const userInfo = JSON.parse(localStorage.getItem('userInfo'));
+        if (userInfo) {
+          this.username = userInfo.username || userInfo.fullName || 'Khách hàng';
+        }
+      }
+    },
+    logout() {
+      // Clear token and user info
+      localStorage.removeItem('token');
+      localStorage.removeItem('userInfo');
+      
+      // Close the dropdown
+      this.isUserMenuOpen = false;
+      
+      // Redirect to home page
+      this.$router.push('/');
+      
+      // Reload page to clear state
+      window.location.reload();
     }
   }
 };
@@ -230,6 +265,15 @@ nav {
   color: #ff6f61;
 }
 
+.user-greeting {
+  display: block;
+  padding: 8px 15px;
+  color: #666;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+  margin-bottom: 5px;
+}
+
 /* Responsive adjustments */
 @media (max-width: 768px) {
   .header-actions {
@@ -250,31 +294,16 @@ nav {
     left: 0;
     width: 100%;
     background: white;
+    flex-direction: column;
     padding: 20px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+    gap: 0;
   }
 
-  .menu.active {
+  .menu li a {
+    padding: 15px 0;
     display: block;
-  }
-
-  .menu li {
-    display: block;
-    margin: 15px 0;
-  }
-}
-
-@media (max-width: 576px) {
-  .header-container {
-    padding: 10px;
-  }
-
-  .logo img {
-    height: 30px;
-  }
-
-  .header-actions {
-    gap: 15px;
+    border-bottom: 1px solid #eee;
   }
 }
 </style>

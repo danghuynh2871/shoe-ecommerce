@@ -1,22 +1,37 @@
 <template>
   <h2>QUẢN LÝ NGƯỜI DÙNG</h2>
   <div class="customer-list">
+    <!-- Success message -->
+    <div v-if="successMessage" class="success-message">
+      <p>{{ successMessage }}</p>
+    </div>
+
     <!-- Loading indicator -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner"></div>
       <p>Đang tải dữ liệu người dùng...</p>
     </div>
-    
+
     <!-- Error message -->
     <div v-if="error" class="error-message">
       <p>{{ error }}</p>
-      <button v-if="!isAuthenticated" @click="redirectToLogin" class="btn login">Đăng nhập</button>
+      <button
+        v-if="!isAuthenticated"
+        @click="redirectToLogin"
+        class="btn login"
+      >
+        Đăng nhập
+      </button>
       <button v-else @click="fetchUsers" class="btn retry">Thử lại</button>
     </div>
-    
+
     <div v-if="!loading && !error && isAuthenticated">
       <div class="search-bar">
-        <input type="text" v-model="searchQuery" placeholder="Tìm kiếm khách hàng..." />
+        <input
+          type="text"
+          v-model="searchQuery"
+          placeholder="Tìm kiếm khách hàng..."
+        />
       </div>
       <table>
         <thead>
@@ -31,11 +46,13 @@
         <tbody>
           <tr v-for="customer in filteredCustomers" :key="customer._id">
             <td>{{ customer._id }}</td>
-            <td>{{ customer.fullName || customer.name || 'N/A' }}</td>
+            <td>{{ customer.fullname || customer.name || "N/A" }}</td>
             <td>{{ customer.email }}</td>
-            <td>{{ customer.numberPhone || customer.phone || 'N/A' }}</td>
+            <td>{{ customer.numberPhone || customer.phone || "N/A" }}</td>
             <td>
-              <button class="btn delete" @click="confirmDelete(customer._id)">Xóa</button>
+              <button class="btn delete" @click="confirmDelete(customer._id)">
+                Xóa
+              </button>
             </td>
           </tr>
         </tbody>
@@ -58,24 +75,25 @@
 </template>
 
 <script>
-import userService from '@/services/userService';
+import userService from "@/services/userService";
 
 export default {
-  name: 'ListCustomer',
+  name: "ListCustomer",
   data() {
     return {
       customers: [],
       showModal: false,
       customerIdToDelete: null,
-      searchQuery: '',
+      searchQuery: "",
       loading: false,
       error: null,
-      isAuthenticated: false
-    }
+      isAuthenticated: false,
+      successMessage: null,
+    };
   },
   computed: {
     filteredCustomers() {
-      return this.customers.filter(customer => {
+      return this.customers.filter((customer) => {
         const query = this.searchQuery.toLowerCase();
         return (
           (customer.email && customer.email.toLowerCase().includes(query)) ||
@@ -83,27 +101,27 @@ export default {
           (customer.numberPhone && customer.numberPhone.includes(query))
         );
       });
-    }
+    },
   },
   created() {
     this.checkAuthentication();
   },
   methods: {
     checkAuthentication() {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
-        this.error = 'Bạn cần đăng nhập để xem danh sách người dùng';
+        this.error = "Bạn cần đăng nhập để xem danh sách người dùng";
         this.isAuthenticated = false;
         return;
       }
-      
+
       this.isAuthenticated = true;
       this.fetchUsers();
     },
     async fetchUsers() {
       this.loading = true;
       this.error = null;
-      
+
       try {
         const response = await userService.getAllUsers();
         if (response.data && response.data.users) {
@@ -111,26 +129,26 @@ export default {
         } else {
           this.customers = response.data;
         }
-        
-        console.log('Dữ liệu người dùng:', this.customers);
+
+        console.log("Dữ liệu người dùng:", this.customers);
       } catch (error) {
-        console.error('Error fetching users:', error);
+        console.error("Error fetching users:", error);
         if (error.response && error.response.status === 401) {
-          this.error = 'Phiên đăng nhập hết hạn, vui lòng đăng nhập lại';
+          this.error = "Phiên đăng nhập hết hạn, vui lòng đăng nhập lại";
           this.isAuthenticated = false;
-          localStorage.removeItem('token');
+          localStorage.removeItem("token");
         } else {
-          this.error = 'Không thể tải dữ liệu người dùng';
+          this.error = "Không thể tải dữ liệu người dùng";
         }
       } finally {
         this.loading = false;
       }
     },
     redirectToLogin() {
-      this.$router.push('/admin/login');
+      this.$router.push("/admin/login");
     },
     viewCustomer(customer) {
-      console.log('Viewing customer:', customer);
+      console.log("Viewing customer:", customer);
     },
     confirmDelete(customerId) {
       this.customerIdToDelete = customerId;
@@ -139,19 +157,26 @@ export default {
     async deleteCustomer() {
       try {
         await userService.deleteUser(this.customerIdToDelete);
-        this.customers = this.customers.filter(customer => customer._id !== this.customerIdToDelete);
+        this.customers = this.customers.filter(
+          (customer) => customer._id !== this.customerIdToDelete
+        );
         this.closeModal();
+        this.successMessage = "Xóa người dùng thành công!";
+        setTimeout(() => {
+          this.successMessage = null;
+        }, 3000);
+        console.log("Xóa người dùng thành công:", this.customerIdToDelete);
       } catch (error) {
-        console.error('Error deleting user:', error);
-        this.error = 'Không thể xóa người dùng';
+        console.error("Error deleting user:", error);
+        this.error = "Không thể xóa người dùng";
       }
     },
     closeModal() {
       this.showModal = false;
       this.customerIdToDelete = null;
-    }
-  }
-}
+    },
+  },
+};
 </script>
 
 <style scoped>
@@ -166,10 +191,11 @@ table {
   width: 100%;
   border-collapse: collapse;
   background: white;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 }
 
-th, td {
+th,
+td {
   padding: 15px;
   text-align: center;
   border-bottom: 1px solid #ddd;
@@ -279,8 +305,12 @@ th {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
@@ -290,5 +320,39 @@ th {
   background-color: #ffeeee;
   border-radius: 4px;
   margin-bottom: 20px;
+}
+
+.success-message {
+  text-align: center;
+  padding: 15px;
+  color: #2ecc71;
+  background-color: #eeffee;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  border-left: 4px solid #2ecc71;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.5s, fadeOut 0.5s 2.5s;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
 }
 </style>

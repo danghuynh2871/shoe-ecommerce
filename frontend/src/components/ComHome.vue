@@ -43,11 +43,26 @@
     <!-- New Arrivals -->
     <section class="new-arrivals">
       <h2 class="section-title">Sản phẩm mới</h2>
-      <div class="product-grid">
-        <div v-for="product in newProducts" :key="product.id" class="product-card">
-          <img :src="product.image" :alt="product.name">
-          <h3>{{ product.name }}</h3>
-          <p class="price">{{ formatPrice(product.price) }}</p>
+      
+      <div v-if="loading" class="loading-container">
+        <p>Đang tải sản phẩm mới...</p>
+      </div>
+      
+      <div v-else-if="error" class="error-container">
+        <p>{{ error }}</p>
+      </div>
+      
+      <div v-else-if="newProducts.length === 0" class="empty-container">
+        <p>Không có sản phẩm mới nào.</p>
+      </div>
+      
+      <div v-else class="product-grid">
+        <div v-for="product in newProducts" :key="product._id" class="product-card">
+          <router-link :to="`/products/${product._id}`">
+            <img :src="product.image" :alt="product.name">
+            <h3>{{ product.name }}</h3>
+            <p class="price">{{ formatPrice(product.price) }}</p>
+          </router-link>
           <button class="add-to-cart-btn">Thêm vào giỏ</button>
         </div>
       </div>
@@ -81,37 +96,19 @@
 </template>
 
 <script>
+import productService from '../services/productService';
+
 export default {
   name: 'ComHome',
   data() {
     return {
-      newProducts: [
-        {
-          id: 1,
-          name: 'Nike Air Max Sneaker',
-          price: 2500000,
-          image: 'https://i.pinimg.com/736x/ee/23/1f/ee231f19f4c09d7d3de5b6c869a385b6.jpg',
-        },
-        {
-          id: 2,
-          name: 'Adidas Boost Sneaker',
-          price: 2200000,
-          image: 'https://i.pinimg.com/736x/00/c4/49/00c4494c9121a7a7d72aecad9b1ad6d2.jpg',
-        },
-        {
-          id: 3,
-          name: 'Puma RS-X Sneaker',
-          price: 1800000,
-          image: 'https://i.pinimg.com/736x/32/03/45/3203456ed4fe2193c5d58d914145fe1f.jpg',
-        },
-        {
-          id: 4,
-          name: 'Nike Air Max 270 Sneaker',
-          price: 2800000,
-          image: 'https://i.pinimg.com/736x/0d/1c/79/0d1c79e6a70f69ef2eca559963072dab.jpg',
-        }
-      ]
+      newProducts: [],
+      loading: false,
+      error: null
     }
+  },
+  created() {
+    this.fetchNewProducts();
   },
   methods: {
     formatPrice(price) {
@@ -119,6 +116,20 @@ export default {
         style: 'currency',
         currency: 'VND'
       }).format(price)
+    },
+    async fetchNewProducts() {
+      this.loading = true;
+      try {
+        const response = await productService.getAllProducts();
+        // Lấy 4 sản phẩm mới nhất (hoặc limit theo API)
+        this.newProducts = response.data.products.slice(0, 4);
+        console.log('Fetched new products:', this.newProducts);
+      } catch (error) {
+        console.error('Error fetching new products:', error);
+        this.error = 'Không thể tải danh sách sản phẩm mới';
+      } finally {
+        this.loading = false;
+      }
     }
   }
 }
@@ -194,6 +205,12 @@ export default {
   padding: 15px;
   border-radius: 8px;
   text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
 }
 
 .product-card img {
@@ -201,6 +218,13 @@ export default {
   height: 200px;
   object-fit: cover;
   margin-bottom: 10px;
+  border-radius: 5px;
+}
+
+.product-card a {
+  text-decoration: none;
+  color: inherit;
+  display: block;
 }
 
 .price {
@@ -217,6 +241,10 @@ export default {
   border-radius: 5px;
   cursor: pointer;
   transition: background-color 0.3s;
+  width: 100%;
+  font-weight: bold;
+  text-transform: uppercase;
+  font-size: 0.9em;
 }
 .shop-now-btn{
   margin-left: 200px;
@@ -298,5 +326,22 @@ export default {
   .banner-content h1 {
     font-size: 2em;
   }
+}
+
+.loading-container, .error-container, .empty-container {
+  text-align: center;
+  padding: 30px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 40px;
+}
+
+.error-container {
+  color: #e53935;
+  background-color: rgba(229, 57, 53, 0.05);
+}
+
+.empty-container {
+  color: #666;
 }
 </style>

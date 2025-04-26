@@ -1,136 +1,252 @@
 <template>
   <div class="edit-product-container">
     <h2>Sửa sản phẩm</h2>
-    
+
     <!-- Loading indicator -->
     <div v-if="loading" class="loading-container">
       <div class="loading-spinner"></div>
       <p>{{ loadingMessage }}</p>
     </div>
-    
+
     <!-- Error message -->
     <div v-if="error" class="error-message">
       <p>{{ error }}</p>
-      <button v-if="productId" @click="fetchProduct" class="btn retry">Thử lại</button>
+      <button v-if="productId" @click="fetchProduct" class="btn retry">
+        Thử lại
+      </button>
     </div>
-    
+
     <form v-if="!loading && !error" @submit.prevent="submitProduct">
       <div class="form-group">
-        <input type="text" id="productId" v-model="productId" placeholder="Mã sản phẩm" readonly required>
+        <input
+          type="text"
+          id="productName"
+          v-model="productName"
+          placeholder="Tên sản phẩm"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="text" id="productName" v-model="productName" placeholder="Tên sản phẩm" required>
+        <input
+          type="number"
+          id="productPrice"
+          v-model="productPrice"
+          placeholder="Giá sản phẩm"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="number" id="productPrice" v-model="productPrice" placeholder="Giá sản phẩm" required>
+        <input
+          type="text"
+          id="productImage"
+          v-model="productImageUrl"
+          placeholder="Đường dẫn hình ảnh"
+          required
+        />
+        <img
+          v-if="productImageUrl"
+          :src="productImageUrl"
+          alt="Product Image"
+          class="product-img-preview"
+        />
       </div>
       <div class="form-group">
-        <input type="file" id="productImage" @change="handleImageUpload" accept="image/*">
-        <img v-if="productImagePreview" :src="productImagePreview" alt="Product Image" class="product-img-preview">
+        <input
+          type="text"
+          id="productType"
+          v-model="productType"
+          placeholder="Loại"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="number" id="productStock" v-model="productStock" placeholder="Số lượng" required>
+        <input
+          type="text"
+          id="productBrand"
+          v-model="productBrand"
+          placeholder="Hãng"
+          required
+        />
       </div>
       <div class="form-group">
-        <input type="text" id="productSize" v-model="productSize" placeholder="Kích thước" required>
+        <input
+          type="number"
+          id="productStock"
+          v-model="productStock"
+          placeholder="Số lượng"
+          required
+        />
       </div>
       <div class="form-group">
-        <textarea id="productInfo" v-model="productInfo" placeholder="Mô tả" required></textarea>
+        <input
+          type="text"
+          id="productSize"
+          v-model="productSize"
+          placeholder="Kích thước"
+          required
+        />
       </div>
-      <button type="submit">Cập nhật sản phẩm</button>
+      <div class="form-group">
+        <textarea
+          id="productInfo"
+          v-model="productInfo"
+          placeholder="Mô tả"
+          required
+        ></textarea>
+      </div>
+      <div class="form-buttons">
+        <button type="submit" class="btn-primary">Cập nhật sản phẩm</button>
+        <button type="button" @click="deleteProduct" class="btn-delete">Xóa sản phẩm</button>
+      </div>
     </form>
   </div>
 </template>
 
 <script>
-import productService from '@/services/productService';
+import productService from "@/services/productService";
 
 export default {
-  name: 'EditProduct',
+  name: "EditProduct",
   data() {
     return {
-      productId: '',
-      productName: '',
-      productPrice: '',
-      productImage: null,
-      productImagePreview: null,
-      productStock: '',
-      productSize: '',
+      productId: "",
+      productName: "",
+      productPrice: "",
+      productImageUrl: "",
+      productType: "",
+      productBrand: "",
+      productStock: "",
+      productSize: "",
       productSizes: [],
-      productInfo: '',
+      productInfo: "",
       loading: false,
       error: null,
-      loadingMessage: 'Đang tải thông tin sản phẩm...'
-    }
+      loadingMessage: "Đang tải thông tin sản phẩm...",
+    };
   },
   created() {
+    // Kiểm tra token admin
+    if (!localStorage.getItem('adminToken')) {
+      this.error = "Bạn cần đăng nhập với tài khoản admin để thực hiện chức năng này";
+      return;
+    }
+    
     const productId = this.$route.query.id;
     if (productId) {
       this.productId = productId;
       this.fetchProduct();
     } else {
-      this.$router.push('/admin/products/list');
+      this.$router.push("/admin/products/list");
     }
   },
   methods: {
     async fetchProduct() {
       this.loading = true;
       this.error = null;
-      this.loadingMessage = 'Đang tải thông tin sản phẩm...';
-      
+      this.loadingMessage = "Đang tải thông tin sản phẩm...";
+
       try {
+        console.log("Đang tải thông tin sản phẩm ID:", this.productId);
         const response = await productService.getProductById(this.productId);
-        const product = response.data.product || response.data;
-        console.log('Sản phẩm đang sửa:', product);
+        console.log("Kết quả tải sản phẩm:", response);
         
+        const product = response.data.product || response.data;
+        console.log("Sản phẩm đang sửa:", product);
+
         this.productName = product.name;
         this.productPrice = product.price.toString();
-        this.productImagePreview = product.image;
+        this.productImageUrl = product.image;
+        this.productType = product.type || "";
+        this.productBrand = product.brand || "";
         this.productStock = product.stock;
         this.productSizes = product.sizes || [];
-        this.productSize = product.sizes ? product.sizes.join(', ') : '';
-        this.productInfo = product.description || product.info || '';
+        this.productSize = product.sizes ? product.sizes.join(", ") : product.size || "";
+        this.productInfo = product.description || product.info || "";
       } catch (error) {
-        console.error('Error fetching product:', error);
-        this.error = 'Không thể tải thông tin sản phẩm';
+        console.error("Error fetching product:", error);
+        this.error = "Không thể tải thông tin sản phẩm: " + (error.response?.data?.message || error.message);
       } finally {
         this.loading = false;
       }
     },
-    handleImageUpload(event) {
-      const file = event.target.files[0];
-      this.productImage = file;
-      this.productImagePreview = URL.createObjectURL(file);
-    },
     async submitProduct() {
       this.loading = true;
       this.error = null;
-      this.loadingMessage = 'Đang cập nhật sản phẩm...';
-      
+      this.loadingMessage = "Đang cập nhật sản phẩm...";
+
+      if (!this.productId) {
+        this.error = "Không tìm thấy ID sản phẩm";
+        this.loading = false;
+        return;
+      }
+
       try {
-        // Xử lý sizes từ chuỗi sang mảng
-        const sizesArray = this.productSize.split(',').map(size => size.trim());
+        // Đảm bảo token admin được gửi lên
+        if (!localStorage.getItem('adminToken')) {
+          throw new Error("Bạn không có quyền thực hiện chức năng này");
+        }
         
+        console.log("ID sản phẩm cần cập nhật:", this.productId);
+        
+        // Chuẩn bị dữ liệu theo định dạng API backend yêu cầu
         const productData = {
           name: this.productName,
           price: parseInt(this.productPrice),
-          image: this.productImagePreview,
+          image: this.productImageUrl,
+          type: this.productType,
+          brand: this.productBrand,
           stock: parseInt(this.productStock),
-          sizes: sizesArray,
+          sizes: this.productSize.split(',').map(size => size.trim()),
           description: this.productInfo
         };
+
+        console.log("Dữ liệu cập nhật:", productData);
         
-        console.log('Dữ liệu cập nhật:', productData);
-        await productService.updateProduct(this.productId, productData);
+        const response = await productService.updateProduct(this.productId, productData);
+        console.log("Kết quả cập nhật:", response);
+        
+        alert('Cập nhật sản phẩm thành công!');
+        this.$router.push("/admin/products/list");
+      } catch (error) {
+        console.error("Chi tiết lỗi cập nhật:", error);
+        this.error = "Không thể cập nhật sản phẩm: " + (error.response?.data?.message || error.message);
+        this.loading = false;
+      }
+    },
+    async deleteProduct() {
+      if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) {
+        return;
+      }
+      
+      if (!this.productId) {
+        this.error = "Không tìm thấy ID sản phẩm";
+        return;
+      }
+      
+      this.loading = true;
+      this.error = null;
+      this.loadingMessage = "Đang xóa sản phẩm...";
+      
+      try {
+        // Đảm bảo token admin được gửi lên
+        if (!localStorage.getItem('adminToken')) {
+          throw new Error("Bạn không có quyền thực hiện chức năng này");
+        }
+        
+        console.log("ID sản phẩm cần xóa:", this.productId);
+        const response = await productService.deleteProduct(this.productId);
+        console.log("Kết quả xóa:", response);
+        
+        alert('Xóa sản phẩm thành công!');
         this.$router.push('/admin/products/list');
       } catch (error) {
-        console.error('Error updating product:', error);
-        this.error = 'Không thể cập nhật sản phẩm';
+        console.error('Chi tiết lỗi xóa:', error);
+        this.error = 'Có lỗi xảy ra khi xóa sản phẩm: ' + (error.response?.data?.message || error.message);
         this.loading = false;
       }
     }
-  }
-}
+  },
+};
 </script>
 
 <style scoped>
@@ -153,7 +269,8 @@ h2 {
   margin-bottom: 20px;
 }
 
-input, textarea {
+input,
+textarea {
   width: 100%;
   padding: 10px;
   border: 1px solid #ddd;
@@ -162,7 +279,8 @@ input, textarea {
   transition: border-color 0.3s;
 }
 
-input:focus, textarea:focus {
+input:focus,
+textarea:focus {
   border-color: #3498db;
 }
 
@@ -174,8 +292,13 @@ input:focus, textarea:focus {
   border-radius: 4px;
 }
 
-button {
-  width: 100%;
+.form-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-primary {
+  flex: 1;
   padding: 12px;
   background: #3498db;
   color: white;
@@ -186,8 +309,23 @@ button {
   transition: background 0.3s;
 }
 
-button:hover {
+.btn-primary:hover {
   background: #2980b9;
+}
+
+.btn-delete {
+  padding: 12px;
+  background: #e74c3c;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.btn-delete:hover {
+  background: #c0392b;
 }
 
 .loading-container {
@@ -206,8 +344,12 @@ button:hover {
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .error-message {
